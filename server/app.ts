@@ -56,6 +56,12 @@ app.use('/api/admin', admin);
 // Serve uploaded images
 app.use('/uploads', express.static(UPLOAD_DIR));
 
+// Serve the production Vite bundle from the same Railway service as the API.
+const DIST_DIR = path.join(process.cwd(), 'dist');
+app.use(express.static(DIST_DIR));
+app.get('/', (_req, res) => res.sendFile(path.join(DIST_DIR, 'index.html')));
+app.get('/admin.html', (_req, res) => res.sendFile(path.join(DIST_DIR, 'admin.html')));
+
 // Health check
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 

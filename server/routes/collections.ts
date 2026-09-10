@@ -34,7 +34,7 @@ router.post('/', requireAuth, async (req, res) => {
 
 router.put('/:id', requireAuth, async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     await execute(
       'UPDATE collections SET title=?, slug=?, description=?, image=?, published=?, sort_order=? WHERE id=?',
       [req.body.title, req.body.slug, req.body.description || null, req.body.image || null, !!req.body.published, req.body.sort_order || 0, id]
@@ -45,7 +45,7 @@ router.put('/:id', requireAuth, async (req, res) => {
 
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
-    await execute('DELETE FROM collections WHERE id=?', [parseInt(req.params.id)]);
+    await execute('DELETE FROM collections WHERE id=?', [parseInt(req.params.id as string)]);
     res.json({ success: true });
   } catch (e: any) { jsonError(res, e.message, 400); }
 });

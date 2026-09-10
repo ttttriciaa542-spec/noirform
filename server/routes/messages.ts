@@ -16,7 +16,7 @@ router.get('/', requireAuth, async (req, res) => {
 
 router.get('/:id', requireAuth, async (req, res) => {
   try {
-    const row = (await query('SELECT * FROM messages WHERE id=?', [parseInt(req.params.id)]))[0];
+    const row = (await query('SELECT * FROM messages WHERE id=?', [parseInt(req.params.id as string)]))[0];
     if (!row) return jsonError(res, 'Not found', 404);
     res.json(row);
   } catch (e) { jsonError(res, (e as Error).message, 500); }
@@ -25,14 +25,14 @@ router.get('/:id', requireAuth, async (req, res) => {
 router.patch('/:id', requireAuth, async (req, res) => {
   try {
     await execute('UPDATE messages SET status = COALESCE(?, status), subject = COALESCE(?, subject), body = COALESCE(?, body) WHERE id=?',
-      [req.body.status, req.body.subject, req.body.body, parseInt(req.params.id)]);
-    res.json((await query('SELECT * FROM messages WHERE id=?', [parseInt(req.params.id)]))[0]);
+      [req.body.status, req.body.subject, req.body.body, parseInt(req.params.id as string)]);
+    res.json((await query('SELECT * FROM messages WHERE id=?', [parseInt(req.params.id as string)]))[0]);
   } catch (e) { jsonError(res, (e as Error).message, 500); }
 });
 
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
-    await execute('DELETE FROM messages WHERE id=?', [parseInt(req.params.id)]);
+    await execute('DELETE FROM messages WHERE id=?', [parseInt(req.params.id as string)]);
     res.json({ success: true });
   } catch (e: any) { jsonError(res, e.message, 400); }
 });

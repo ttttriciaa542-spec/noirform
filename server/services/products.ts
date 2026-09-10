@@ -84,7 +84,7 @@ export interface ListOpts {
 }
 
 export async function listProductsPublic(opts: ListOpts) {
-  let where = 'WHERE p.status = "Published"';
+  let where = "WHERE p.status = 'Published'";
   const params: any[] = [];
   if (opts.search) { where += ' AND (p.name LIKE ? OR p.sku LIKE ?)'; params.push(`%${opts.search}%`, `%${opts.search}%`); }
   if (opts.category) {
@@ -113,8 +113,8 @@ export async function listProductsAdmin(opts: ListOpts) {
   const params: any[] = [];
   if (opts.search) { where += ' AND (name LIKE ? OR sku LIKE ?)'; params.push(`%${opts.search}%`, `%${opts.search}%`); }
   if (opts.status && opts.status !== 'All') { where += ' AND status = ?'; params.push(opts.status); }
-  const perPage = Math.max(1, parseInt(opts.perPage || '20', 10));
-  const page = Math.max(1, parseInt(opts.page || '1', 10));
+  const perPage = Math.max(1, Number(opts.perPage || 20));
+  const page = Math.max(1, Number(opts.page || 1));
   const total = (await query(`SELECT COUNT(*) as n FROM products ${where}`, params))[0] as any;
   const rows = await query(
     `SELECT * FROM products ${where} ORDER BY id DESC LIMIT ? OFFSET ?`,

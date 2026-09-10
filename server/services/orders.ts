@@ -37,8 +37,8 @@ export async function listOrders(opts: { status?: string; search?: string; page?
     const q = `%${opts.search}%`;
     params.push(q, q, q);
   }
-  const perPage = Math.max(1, parseInt(opts.perPage || '20', 10));
-  const page = Math.max(1, parseInt(opts.page || '1', 10));
+  const perPage = Math.max(1, Number(opts.perPage || 20));
+  const page = Math.max(1, Number(opts.page || 1));
   const total = (await query(`SELECT COUNT(*) as n FROM orders ${where}`, params))[0] as any;
   const rows = await query(`SELECT * FROM orders ${where} ORDER BY id DESC LIMIT ? OFFSET ?`, [...params, perPage, (page - 1) * perPage]);
   return { items: rows, total: Number((total as any).n), page, perPage };
@@ -58,7 +58,8 @@ export async function finalizePaidOrder(orderId: number, reference: string, amou
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
-    const order = (await conn.execute('SELECT * FROM orders WHERE id = ?', [orderId]))[0] as any;
+    const [orderRows] = await conn.execute('SELECT * FROM orders WHERE id = ?', [orderId]);
+    const order = (orderRows as any[])[0] as any;
     if (!order) { await conn.rollback(); conn.release(); return { error: 'Order not found' }; }
     if (order.payment_status === 'Paid') { await conn.commit(); conn.release(); return { already: true }; }
     console.error('[finalize] orderId', orderId, 'amount', amount, 'order.total', order.total, 'eq', amount !== null && Number(amount) !== Number(order.total));
@@ -76,7 +77,8 @@ export async function finalizePaidOrder(orderId: number, reference: string, amou
     // update order to paid + processing fulfillment
     await conn.execute('UPDATE orders SET payment_status = ?, status = ?, updated_at = NOW() WHERE id = ?', ['Paid', 'Processing', orderId]);
     // customer record (guest -> consolidated)
-    const cust = (await conn.execute('SELECT * FROM customers WHERE email = ?', [order.email]))[0] as any;
+    const [customerRows] = await conn.execute('SELECT * FROM customers WHERE email = ?', [order.email]);
+    const cust = (customerRows as any[])[0] as any;
     if (cust) {
       await conn.execute(
         'UPDATE customers SET name = COALESCE(?, name), phone = COALESCE(?, phone), total_orders = total_orders + 1, total_spent = total_spent + ? WHERE id = ?',
@@ -84,22 +86,28 @@ export async function finalizePaidOrder(orderId: number, reference: string, amou
       );
       await conn.execute('UPDATE orders SET customer_id = ? WHERE id = ?', [cust.id, orderId]);
     } else {
-      const cr = await conn.execute(
+      const [customerInsert] = await conn.execute(
         'INSERT INTO customers (email, name, phone, address, city, region, total_orders, total_spent) VALUES (?,?,?,?,?,?,1,?)',
         [order.email, order.customer_name, order.phone, order.address, order.city, order.region, order.total]
       );
-      await conn.execute('UPDATE orders SET customer_id = ? WHERE id = ?', [(cr as any).insertId, orderId]);
+      await conn.execute('UPDATE orders SET customer_id = ? WHERE id = ?', [(customerInsert as any).insertId, orderId]);
     }
     // decrement variant inventory from line items
-    const items = await conn.execute(
+    const [itemRows] = await conn.execute(
       'SELECT id, variant_id, quantity FROM order_items WHERE order_id = ?',
       [orderId]
-    ) as any[];
+    );
+    const items = itemRows as any[];
     for (const it of items) {
       if (it.variant_id) {
-        const v = (await conn.execute('SELECT inventory FROM product_variants WHERE id = ?', [it.variant_id]))[0] as any;
+        const [variantRows] = await conn.execute('SELECT inventory FROM product_variants WHERE id = ? FOR UPDATE', [it.variant_id]);
+        const v = (variantRows as any[])[0] as any;
         const prev = Number(v?.inventory || 0);
-        const next = Math.max(0, prev - Number(it.quantity));
+        if (prev < Number(it.quantity)) {
+          await conn.rollback();
+          return { error: 'Insufficient inventory' };
+        }
+        const next = prev - Number(it.quantity);
         await conn.execute('UPDATE product_variants SET inventory = ? WHERE id = ?', [next, it.variant_id]);
         await conn.execute(
           'INSERT INTO inventory_adjustments (variant_id, previous_quantity, new_quantity, difference, reason, created_by) VALUES (?,?,?,?,?,?)',

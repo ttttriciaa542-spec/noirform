@@ -452,8 +452,18 @@ body.dark-theme .wishlist-popover small {
 
 /* Editorial route entrance: a measured reveal, then stagger the useful content. */
 .home-view,
-.shop {
+.shop,
+.product-page {
   animation: page-in 950ms cubic-bezier(.22,.8,.24,1) both;
+}
+
+.product-page .gallery,
+.product-page .product-copy {
+  animation: copy-rise 900ms cubic-bezier(.22,.8,.24,1) both;
+}
+
+.product-page .product-copy {
+  animation-delay: 100ms;
 }
 
 .hero-copy .eyebrow,
@@ -555,6 +565,7 @@ body.dark-theme .wishlist-popover small {
 @media (prefers-reduced-motion: reduce) {
   .home-view,
   .shop,
+  .product-page,
   .hero-copy .eyebrow,
   .hero-copy h1,
   .hero-copy > p:not(.eyebrow),
@@ -664,15 +675,26 @@ body.dark-theme .contact-form textarea { color: #f4f4ef; border-color: #555550; 
 }
 
 .search-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f7f7f5;
+  border-bottom: 1px solid #d2d2cc;
   top: 111px;
   padding: 28px 7vw 34px;
-  box-shadow: 0 18px 35px #0003;
-  animation: search-panel-in 240ms ease-out both;
+  box-shadow: 0 20px 40px #0002;
+  animation: search-panel-in 320ms cubic-bezier(.22,.8,.24,1) both;
 }
 
 .search-bar input {
+  flex: 1;
+  min-width: 0;
   font-size: clamp(22px, 3vw, 38px);
-  letter-spacing: -.04em;
+  letter-spacing: 0;
   padding: 8px 0 16px;
 }
 
@@ -699,7 +721,13 @@ body.dark-theme .contact-form textarea { color: #f4f4ef; border-color: #555550; 
 @media (max-width: 760px) {
   .search-bar {
     top: 93px;
-    padding: 24px 20px 32px;
+    padding: 22px 20px 30px;
+    gap: 12px;
+  }
+
+  .search-bar input {
+    font-size: 25px;
+    padding: 5px 0 12px;
   }
 
   .search-bar::after {

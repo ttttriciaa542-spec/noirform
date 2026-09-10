@@ -19,15 +19,16 @@ router.get('/', requireAuth, async (req, res) => {
 
 router.patch('/:id', requireAuth, async (req, res) => {
   try {
-    const variant = (await query('SELECT * FROM product_variants WHERE id=?', [parseInt(req.params.id)]))[0] as any;
+    const variant = (await query('SELECT * FROM product_variants WHERE id=?', [parseInt(req.params.id as string)]))[0] as any;
     if (!variant) return jsonError(res, 'Variant not found', 404);
     const prev = Number(variant.inventory);
     const next = Number(req.body.quantity);
+    if (!Number.isInteger(next) || next < 0) return jsonError(res, 'Quantity must be a non-negative whole number', 400);
     const reason = req.body.reason || 'Manual adjustment';
-    await execute('UPDATE product_variants SET inventory=? WHERE id=?', [next, parseInt(req.params.id)]);
+    await execute('UPDATE product_variants SET inventory=? WHERE id=?', [next, parseInt(req.params.id as string)]);
     await execute(
       'INSERT INTO inventory_adjustments (variant_id, previous_quantity, new_quantity, difference, reason, created_by) VALUES (?,?,?,?,?,?)',
-      [parseInt(req.params.id), prev, next, next - prev, reason, (req as any).user?.name || 'admin']
+      [parseInt(req.params.id as string), prev, next, next - prev, reason, (req as any).user?.name || 'admin']
     );
     res.json({ previous: prev, current: next, difference: next - prev });
   } catch (e) { jsonError(res, (e as Error).message, 500); }

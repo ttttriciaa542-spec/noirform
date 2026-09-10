@@ -34,7 +34,7 @@ export function getAuthUser(req: Request): User | null {
   if (!match) return null;
   try {
     const payload = jwt.verify(match[1], JWT_SECRET) as any;
-    return { id: payload.uid, email: payload.email, role: payload.role };
+    return { id: payload.uid, email: payload.email, name: payload.name || '', role: payload.role };
   } catch {
     return null;
   }

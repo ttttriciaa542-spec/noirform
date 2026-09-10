@@ -19,7 +19,7 @@ router.get('/', requireAuth, async (req: AuthRequest, res) => {
 
 router.get('/:id', requireAuth, async (req, res) => {
   try {
-    const order = await fetchOrder(parseInt(req.params.id));
+    const order = await fetchOrder(parseInt(req.params.id as string));
     if (!order) return jsonError(res, 'Order not found', 404);
     res.json(order);
   } catch (e) { jsonError(res, (e as Error).message, 500); }
@@ -27,7 +27,7 @@ router.get('/:id', requireAuth, async (req, res) => {
 
 router.patch('/:id/status', requireAuth, async (req: AuthRequest, res) => {
   try {
-    const order = await updateOrderStatus(parseInt(req.params.id), {
+    const order = await updateOrderStatus(parseInt(req.params.id as string), {
       status: req.body.status,
       payment_status: req.body.payment_status
     });
@@ -37,7 +37,7 @@ router.patch('/:id/status', requireAuth, async (req: AuthRequest, res) => {
 
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
-    await execute('DELETE FROM orders WHERE id=?', [parseInt(req.params.id)]);
+    await execute('DELETE FROM orders WHERE id=?', [parseInt(req.params.id as string)]);
     res.json({ success: true });
   } catch (e: any) { jsonError(res, e.message, 400); }
 });

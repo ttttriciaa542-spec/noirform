@@ -88,7 +88,7 @@ router.post('/checkout/initiate', async (req, res) => {
           metadata: { order_id: orderId, order_number: orderNo }
         })
       });
-      const psData = await psRes.json();
+      const psData: any = await psRes.json();
       if (psData.status && psData.data?.authorization_url) {
         payload.authorization_url = psData.data.authorization_url;
       } else {
@@ -119,7 +119,7 @@ router.post('/paystack/verify', async (req, res) => {
       const r = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
         headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` }
       });
-      const data = await r.json();
+      const data: any = await r.json();
       if (data.status && data.data?.status === 'success' && Number(data.data.amount) === Math.round(Number(order.total) * 100)) ok = true;
     }
 

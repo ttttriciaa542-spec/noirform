@@ -1,62 +1,1295 @@
-import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, Camera, ChevronDown, ChevronLeft, ChevronRight, Heart, Menu, Search, ShoppingBag, Sun, Moon, X, Plus, Minus } from 'lucide-react'
-import RoutePage from './RoutePage'
+import { useEffect, useMemo, useState } from "react";
+import {
+  ArrowRight,
+  Camera,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  Menu,
+  Search,
+  ShoppingBag,
+  Sun,
+  Moon,
+  X,
+  Plus,
+  Minus,
+} from "lucide-react";
+import RoutePage from "./RoutePage";
 
 const images = {
-  hero: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1800&q=85',
-  collection: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1800&q=85',
-  studio: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1000&q=85',
-  portrait: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1000&q=85'
+  hero: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1800&q=85",
+  collection:
+    "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1800&q=85",
+  studio:
+    "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1000&q=85",
+  portrait:
+    "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1000&q=85",
+};
+const fallbackProducts = [
+  {
+    id: 1,
+    name: "The Column Dress",
+    category: "Dresses",
+    price: 780,
+    sale: 680,
+    sizes: ["XS", "S", "M", "L"],
+    colors: ["Ink"],
+    image:
+      "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?auto=format&fit=crop&w=900&q=85",
+    badge: "Bestseller",
+  },
+  {
+    id: 2,
+    name: "Form Trouser",
+    category: "Bottoms",
+    price: 540,
+    sizes: ["XS", "S", "M", "L"],
+    colors: ["Ink", "Bone"],
+    image:
+      "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=900&q=85",
+    badge: "New",
+  },
+  {
+    id: 3,
+    name: "The Essential Shirt",
+    category: "Tops",
+    price: 420,
+    sale: 350,
+    sizes: ["S", "M", "L"],
+    colors: ["Bone"],
+    image:
+      "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=900&q=85",
+    badge: "Studio pick",
+  },
+  {
+    id: 4,
+    name: "Soft Structure Blazer",
+    category: "Tops",
+    price: 980,
+    sizes: ["S", "M", "L"],
+    colors: ["Ink"],
+    image:
+      "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=900&q=85",
+  },
+  {
+    id: 5,
+    name: "The Longline Skirt",
+    category: "Bottoms",
+    price: 490,
+    sizes: ["XS", "S", "M", "L"],
+    colors: ["Ink"],
+    image:
+      "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=900&q=85",
+    badge: "New",
+  },
+  {
+    id: 6,
+    name: "Frame Tank",
+    category: "Tops",
+    price: 260,
+    sizes: ["XS", "S", "M", "L"],
+    colors: ["Bone", "Ink"],
+    image:
+      "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=900&q=85",
+  },
+  {
+    id: 7,
+    name: "Cocoon Coat",
+    category: "Tops",
+    price: 1250,
+    sizes: ["S", "M", "L"],
+    colors: ["Ink"],
+    image:
+      "https://images.unsplash.com/photo-1544022613-e87ca75a784a?auto=format&fit=crop&w=900&q=85",
+  },
+  {
+    id: 8,
+    name: "Everyday Pleat",
+    category: "Dresses",
+    price: 620,
+    sizes: ["XS", "S", "M"],
+    colors: ["Bone"],
+    image:
+      "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=900&q=85",
+  },
+];
+let products = fallbackProducts;
+function mapProduct(product) {
+  const variants = product.variants || [];
+  const sizes = [
+    ...new Set(
+      variants
+        .map((variant) =>
+          String(variant.title || "")
+            .split("/")
+            .pop()
+            .trim(),
+        )
+        .filter(Boolean),
+    ),
+  ];
+  const colors = [
+    ...new Set(
+      variants
+        .map((variant) =>
+          String(variant.title || "")
+            .split("/")[0]
+            .trim(),
+        )
+        .filter(Boolean),
+    ),
+  ];
+  const firstVariant = variants[0];
+  return {
+    ...product,
+    price: Number(
+      product.compare_price || product.price || firstVariant?.price || 0,
+    ),
+    sale: product.compare_price ? Number(product.price) : null,
+    image: product.primary_image || product.images?.[0]?.url || "",
+    sizes: sizes.length ? sizes : ["One size"],
+    colors: colors.length ? colors : ["Default"],
+    variant_id: firstVariant?.id,
+    badge: product.badge || (product.featured ? "Featured" : ""),
+  };
 }
-const products = [
-  { id: 1, name: 'The Column Dress', category: 'Dresses', price: 780, sale: 680, sizes: ['XS', 'S', 'M', 'L'], colors: ['Ink'], image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?auto=format&fit=crop&w=900&q=85', badge: 'Bestseller' },
-  { id: 2, name: 'Form Trouser', category: 'Bottoms', price: 540, sizes: ['XS', 'S', 'M', 'L'], colors: ['Ink', 'Bone'], image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=900&q=85', badge: 'New' },
-  { id: 3, name: 'The Essential Shirt', category: 'Tops', price: 420, sale: 350, sizes: ['S', 'M', 'L'], colors: ['Bone'], image: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=900&q=85', badge: 'Studio pick' },
-  { id: 4, name: 'Soft Structure Blazer', category: 'Tops', price: 980, sizes: ['S', 'M', 'L'], colors: ['Ink'], image: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=900&q=85' },
-  { id: 5, name: 'The Longline Skirt', category: 'Bottoms', price: 490, sizes: ['XS', 'S', 'M', 'L'], colors: ['Ink'], image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=900&q=85', badge: 'New' },
-  { id: 6, name: 'Frame Tank', category: 'Tops', price: 260, sizes: ['XS', 'S', 'M', 'L'], colors: ['Bone', 'Ink'], image: 'https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=900&q=85' },
-  { id: 7, name: 'Cocoon Coat', category: 'Tops', price: 1250, sizes: ['S', 'M', 'L'], colors: ['Ink'], image: 'https://images.unsplash.com/photo-1544022613-e87ca75a784a?auto=format&fit=crop&w=900&q=85' },
-  { id: 8, name: 'Everyday Pleat', category: 'Dresses', price: 620, sizes: ['XS', 'S', 'M'], colors: ['Bone'], image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=900&q=85' }
-]
-const money = value => `GHS ${value.toLocaleString()}`
+const money = (value) => `GHS ${value.toLocaleString()}`;
 
 function useHash() {
-  const [hash, setHash] = useState(window.location.hash || '#home')
-  useEffect(() => { const update = () => setHash(window.location.hash || '#home'); window.addEventListener('hashchange', update); return () => window.removeEventListener('hashchange', update) }, [])
-  return hash
+  const [hash, setHash] = useState(window.location.hash || "#home");
+  useEffect(() => {
+    const update = () => setHash(window.location.hash || "#home");
+    window.addEventListener("hashchange", update);
+    return () => window.removeEventListener("hashchange", update);
+  }, []);
+  return hash;
 }
-function go(route) { window.location.hash = route }
+function go(route) {
+  window.location.hash = route;
+}
 
 function Header({ cartCount, openCart, onSearch }) {
-  const [menu, setMenu] = useState(false)
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('noir-theme') === 'dark')
-  useEffect(() => { document.body.classList.toggle('dark-theme', darkMode); localStorage.setItem('noir-theme', darkMode ? 'dark' : 'light') }, [darkMode])
-  return <>
-    <div className="announcement">New collection available now <button aria-label="Dismiss announcement">×</button></div>
-    <header className="header"><button className="mobile-menu" onClick={() => setMenu(!menu)} aria-label="Open menu">{menu ? <X /> : <Menu />}</button><a className="logo" href="#home">NOIR<span>/</span>FORM</a><nav className="nav"><a href="#shop">Shop</a><a href="#collections">Collections</a><a href="#about">About</a><a href="#contact">Contact</a><a href="#track">Track order</a></nav><div className="header-tools"><button onClick={onSearch} aria-label="Search"><Search size={18} /></button><button className="theme-toggle" onClick={() => setDarkMode(!darkMode)} aria-label={darkMode ? 'Use light theme' : 'Use dark theme'}>{darkMode ? <Sun size={17} /> : <Moon size={17} />}</button><button className="cart-link" onClick={openCart} aria-label={`Open cart, ${cartCount} items`}><ShoppingBag size={19} /><span>{cartCount}</span></button></div></header>
-    {menu && <nav className="mobile-nav"><a href="#shop" onClick={() => setMenu(false)}>Shop</a><a href="#collections" onClick={() => setMenu(false)}>Collections</a><a href="#about" onClick={() => setMenu(false)}>About</a><a href="#contact" onClick={() => setMenu(false)}>Contact</a><a href="#track" onClick={() => setMenu(false)}>Track order</a></nav>}
-  </>
+  const [menu, setMenu] = useState(false);
+  const [darkMode, setDarkMode] = useState(
+    () => localStorage.getItem("noir-theme") === "dark",
+  );
+  useEffect(() => {
+    document.body.classList.toggle("dark-theme", darkMode);
+    localStorage.setItem("noir-theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
+  return (
+    <>
+      <div className="announcement">
+        New collection available now{" "}
+        <button aria-label="Dismiss announcement">×</button>
+      </div>
+      <header className="header">
+        <button
+          className="mobile-menu"
+          onClick={() => setMenu(!menu)}
+          aria-label="Open menu"
+        >
+          {menu ? <X /> : <Menu />}
+        </button>
+        <a className="logo" href="#home">
+          NOIR<span>/</span>FORM
+        </a>
+        <nav className="nav">
+          <a href="#shop">Shop</a>
+          <a href="#collections">Collections</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+          <a href="#track">Track order</a>
+        </nav>
+        <div className="header-tools">
+          <button onClick={onSearch} aria-label="Search">
+            <Search size={18} />
+          </button>
+          <button
+            className="theme-toggle"
+            onClick={() => setDarkMode(!darkMode)}
+            aria-label={darkMode ? "Use light theme" : "Use dark theme"}
+          >
+            {darkMode ? <Sun size={17} /> : <Moon size={17} />}
+          </button>
+          <button
+            className="cart-link"
+            onClick={openCart}
+            aria-label={`Open cart, ${cartCount} items`}
+          >
+            <ShoppingBag size={19} />
+            <span>{cartCount}</span>
+          </button>
+        </div>
+      </header>
+      {menu && (
+        <nav className="mobile-nav">
+          <a href="#shop" onClick={() => setMenu(false)}>
+            Shop
+          </a>
+          <a href="#collections" onClick={() => setMenu(false)}>
+            Collections
+          </a>
+          <a href="#about" onClick={() => setMenu(false)}>
+            About
+          </a>
+          <a href="#contact" onClick={() => setMenu(false)}>
+            Contact
+          </a>
+          <a href="#track" onClick={() => setMenu(false)}>
+            Track order
+          </a>
+        </nav>
+      )}
+    </>
+  );
 }
 function ProductCard({ product, onAdd, onOpen }) {
-  const discount = product.sale ? Math.round((1 - product.sale / product.price) * 100) : 0
-  return <article className="product-card"><button className="product-image" onClick={() => onOpen(product.id)}><img src={product.image} alt={product.name} />{product.badge && <span className="badge">{product.badge}</span>}<span className="quick-view">View piece <ArrowRight size={14} /></span></button><div className="product-info"><div><h3>{product.name}</h3><p>{product.category}</p></div><button className="heart" aria-label={`Wishlist ${product.name}`}><Heart size={17} /></button></div><div className="price-row"><span>{money(product.sale || product.price)}</span>{product.sale && <><del>{money(product.price)}</del><b>{discount}% off</b></>}</div><button className="quick-add" onClick={() => onAdd(product)}>Quick add <Plus size={14} /></button></article>
+  const discount = product.sale
+    ? Math.round((1 - product.sale / product.price) * 100)
+    : 0;
+  return (
+    <article className="product-card">
+      <button className="product-image" onClick={() => onOpen(product.id)}>
+        <img src={product.image} alt={product.name} />
+        {product.badge && <span className="badge">{product.badge}</span>}
+        <span className="quick-view">
+          View piece <ArrowRight size={14} />
+        </span>
+      </button>
+      <div className="product-info">
+        <div>
+          <h3>{product.name}</h3>
+          <p>{product.category}</p>
+        </div>
+        <button className="heart" aria-label={`Wishlist ${product.name}`}>
+          <Heart size={17} />
+        </button>
+      </div>
+      <div className="price-row">
+        <span>{money(product.sale || product.price)}</span>
+        {product.sale && (
+          <>
+            <del>{money(product.price)}</del>
+            <b>{discount}% off</b>
+          </>
+        )}
+      </div>
+      <button className="quick-add" onClick={() => onAdd(product)}>
+        Quick add <Plus size={14} />
+      </button>
+    </article>
+  );
 }
-function Home({ onAdd, onOpen }) { const route = window.location.hash.slice(1); if (['collections', 'about', 'contact', 'privacy', 'terms'].includes(route)) return <RoutePage page={route} onShop={() => go('#shop')} />; return <main className="home-view">
-  <section className="hero"><div className="hero-copy"><p className="eyebrow">SS26 / THE QUIET FORM</p><h1>Dress with<br /><em>intention.</em></h1><p>Considered essentials for the lives we actually live. Designed in Accra, made in small runs.</p><a className="button light" href="#shop">Shop collection <ArrowRight size={16} /></a></div><img src={images.hero} alt="Model wearing a minimal black dress" /><div className="hero-meta"><span>01 / 03</span><span>Scroll to explore ↓</span></div></section>
-  <div className="ticker"><span>MADE SLOWLY</span><span>WORN OFTEN</span><span>NOIR/FORM</span><span>MADE SLOWLY</span></div>
-  <section className="section" id="featured"><div className="section-head"><div><p className="eyebrow">01 / THE EDIT</p><h2>Essential forms</h2></div><a className="text-link" href="#shop">View all pieces <ArrowRight size={15} /></a></div><div className="product-grid">{products.slice(0, 4).map(product => <ProductCard key={product.id} product={product} onAdd={onAdd} onOpen={onOpen} />)}</div></section>
-  <section className="collection" id="collections"><img src={images.collection} alt="Editorial portrait in monochrome tailoring" /><div className="collection-copy"><p className="eyebrow">02 / SS26 COLLECTION</p><h2>The new<br /><em>uniform.</em></h2><p>A study in movement, restraint, and the spaces between. Sixteen pieces designed to find their place in your everyday.</p><a className="button dark" href="#shop">Explore SS26 <ArrowRight size={16} /></a></div><span className="vertical-label">NOIR/FORM — NEW SEASON</span></section>
-  <section className="story section" id="about"><div className="story-copy"><p className="eyebrow">03 / THE STUDIO</p><h2>Clothes with<br /><em>a point of view.</em></h2><p>NOIR/FORM is an independent clothing studio founded by Ama Mensah. We make fewer, better pieces from a small studio in Accra, Ghana. Each garment begins with a question: how can it be simpler, more useful, more you?</p><a className="text-link" href="#about">Our story <ArrowRight size={15} /></a></div><div className="story-images"><img src={images.studio} alt="Clothing rack in a studio" /><img src={images.portrait} alt="Person in a white shirt and dark trousers" /></div></section>
-  <section className="social section" id="contact"><div className="section-head"><div><p className="eyebrow">04 / @NOIRFORM</p><h2>Seen in the wild.</h2></div><a className="text-link" href="https://instagram.com" target="_blank" rel="noreferrer">Follow along <ArrowRight size={15} /></a></div><div className="social-grid">{[products[1].image, products[2].image, products[4].image, products[7].image].map((image, index) => <a href="https://instagram.com" target="_blank" rel="noreferrer" key={image}><img src={image} alt={`NOIR/FORM look ${index + 1}`} /><Camera className="social-icon" size={20} /></a>)}</div></section>
-  <section className="newsletter"><div><p className="eyebrow">THE INSIDE LINE</p><h2>Stay in the know.</h2><p>New drops, studio notes, and the occasional good thing in your inbox.</p></div><form onSubmit={event => { event.preventDefault(); event.currentTarget.reset(); alert('You are on the list.') }}><input type="email" placeholder="Your email address" aria-label="Email address" required /><button className="button light">Join the list <ArrowRight size={16} /></button></form></section>
-</main> }
-function Shop({ onAdd, onOpen }) { const [category, setCategory] = useState('All'); const [sort, setSort] = useState('featured'); const list = useMemo(() => { let result = category === 'All' ? products : products.filter(product => product.category === category); return [...result].sort((a, b) => sort === 'price-low' ? (a.sale || a.price) - (b.sale || b.price) : sort === 'price-high' ? (b.sale || b.price) - (a.sale || a.price) : 0) }, [category, sort]); return <main className="shop"><div className="page-intro"><p className="eyebrow">NOIR/FORM / SHOP</p><h1>All pieces</h1><p>Everyday forms, considered in Ghana.</p></div><div className="shop-toolbar"><label className="sort-control"><span>Sort</span><select value={sort} onChange={event => setSort(event.target.value)}><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select><ChevronDown size={14} /></label><div className="categories">{['All', 'Tops', 'Bottoms', 'Dresses'].map(item => <button className={category === item ? 'active' : ''} key={item} onClick={() => setCategory(item)}>{item}</button>)}</div></div><p className="result-count">{list.length} pieces</p><div className="product-grid shop-grid">{list.map(product => <ProductCard key={product.id} product={product} onAdd={onAdd} onOpen={onOpen} />)}</div></main> }
-function Product({ product, onAdd, onBuy }) { const [size, setSize] = useState(product.sizes[1]); const [image, setImage] = useState(product.image); const discount = product.sale ? Math.round((1 - product.sale / product.price) * 100) : 0; return <main className="product-page"><button className="back" onClick={() => go('#shop')}><ChevronLeft size={16} /> Back to shop</button><div className="product-detail"><div className="gallery"><img src={image} alt={product.name} /><div className="thumbs"><button onClick={() => setImage(product.image)}><img src={product.image} alt="" /></button><button onClick={() => setImage(images.portrait)}><img src={images.portrait} alt="" /></button></div></div><div className="product-copy"><p className="eyebrow">{product.category} / SS26</p><h1>{product.name}</h1><div className="detail-price"><strong>{money(product.sale || product.price)}</strong>{product.sale && <><del>{money(product.price)}</del><b>{discount}% off</b></>}</div><p className="description">A considered essential with a quiet point of view. Cut for ease and made in small batches from thoughtfully sourced fabric.</p><hr /><div className="option"><div><strong>Size</strong><button className="size-guide">Size guide</button></div><div className="size-options">{product.sizes.map(item => <button className={size === item ? 'selected' : ''} key={item} onClick={() => setSize(item)}>{item}</button>)}</div></div><div className="option"><strong>Color</strong><div className="color-choice"><span />{product.colors[0]}</div></div><div className="stock"><span /> In stock — ships in 2–4 days</div><button className="button dark add-detail" onClick={() => onAdd(product, size)}>Add to cart <ShoppingBag size={16} /></button><button className="button buy-detail" onClick={() => onBuy(product, size)}>Buy now <ArrowRight size={16} /></button><button className="wishlist"><Heart size={16} /> Add to wishlist</button><div className="details"><details open><summary>Product details <Plus size={15} /></summary><p>100% cotton. Made in Ghana. Designed for a relaxed fit. Cold hand wash and line dry.</p></details><details><summary>Shipping & returns <Plus size={15} /></summary><p>Delivery across Ghana in 2–4 business days. International delivery calculated at checkout. Returns accepted within 14 days.</p></details><details><summary>Reviews <Plus size={15} /></summary><p>No reviews yet. Be the first to share your experience.</p></details></div></div></div></main> }
-function CartDrawer({ cart, open, close, update, remove, checkout }) { const subtotal = cart.reduce((sum, item) => sum + (item.product.sale || item.product.price) * item.quantity, 0); return <><div className={`overlay ${open ? 'show' : ''}`} onClick={close} /><aside className={`cart-drawer ${open ? 'open' : ''}`}><div className="drawer-head"><h2>Your cart <span>{cart.reduce((sum, item) => sum + item.quantity, 0)}</span></h2><button onClick={close}><X size={19} /></button></div>{cart.length === 0 ? <div className="empty-cart"><ShoppingBag size={30} /><p>Your cart is waiting.</p><button onClick={() => { close(); go('#shop') }}>Explore pieces <ArrowRight size={15} /></button></div> : <><div className="drawer-items">{cart.map(item => <div className="drawer-item" key={`${item.product.id}-${item.size}`}><img src={item.product.image} alt={item.product.name} /><div><h3>{item.product.name}</h3><p>{item.size} / {item.product.colors[0]}</p><div className="quantity"><button onClick={() => update(item, -1)}><Minus size={12} /></button><span>{item.quantity}</span><button onClick={() => update(item, 1)}><Plus size={12} /></button></div></div><div className="drawer-item-price"><strong>{money((item.product.sale || item.product.price) * item.quantity)}</strong><button onClick={() => remove(item)}>Remove</button></div></div>)}</div><div className="drawer-footer"><p className="shipping-note">Free delivery on orders over GHS 1,000</p><div className="summary-line"><span>Subtotal</span><strong>{money(subtotal)}</strong></div><button className="button dark full" onClick={checkout}>Checkout <ArrowRight size={16} /></button><button className="continue" onClick={close}>Continue shopping</button></div></>}</aside></> }
-function Checkout({ cart, onComplete }) { const total = cart.reduce((sum, item) => sum + (item.product.sale || item.product.price) * item.quantity, 0); const [form, setForm] = useState({}); const change = event => setForm({ ...form, [event.target.name]: event.target.value }); return <main className="checkout"><div className="checkout-top"><a className="logo" href="#home">NOIR<span>/</span>FORM</a><span>Secure checkout</span></div><div className="checkout-layout"><form onSubmit={event => { event.preventDefault(); onComplete(form, total) }}><p className="eyebrow">YOUR DETAILS</p><h1>Ready when<br /><em>you are.</em></h1><div className="form-grid">{[['name', 'Full name'], ['email', 'Email'], ['phone', 'Phone number'], ['city', 'City']].map(([name, label]) => <label key={name}>{label}<input name={name} type={name === 'email' ? 'email' : name === 'phone' ? 'tel' : 'text'} onChange={change} required /></label>)}<label className="full">Delivery address<textarea name="address" rows="3" onChange={change} required /></label><label>Region<select name="region" onChange={change} required><option value="">Select region</option><option>Greater Accra</option><option>Ashanti</option><option>Central</option><option>Eastern</option><option>Western</option></select></label><label>Delivery instructions<input name="instructions" onChange={change} placeholder="Optional" /></label></div><button className="button dark full">Continue to payment <ArrowRight size={16} /></button><p className="secure">Paystack secure payment. Guest checkout, no account required.</p></form><aside className="checkout-summary"><p className="eyebrow">ORDER SUMMARY</p>{cart.map(item => <div className="summary-item" key={`${item.product.id}-${item.size}`}><img src={item.product.image} alt="" /><div><strong>{item.product.name}</strong><span>{item.size} / Qty {item.quantity}</span></div><b>{money((item.product.sale || item.product.price) * item.quantity)}</b></div>)}<div className="summary-total"><span>Total</span><strong>{money(total)}</strong></div></aside></div></main> }
-function Footer() { return <footer><div className="footer-top"><a className="logo" href="#home">NOIR<span>/</span>FORM</a><p>Independent clothing<br />for considered lives.</p><a href="#home" className="back-top">Back to top ↑</a></div><div className="footer-links"><div><small>Explore</small><a href="#shop">Shop all</a><a href="#collections">Collections</a><a href="#about">Our story</a></div><div><small>Help</small><a href="#track">Track order</a><a href="mailto:hello@noirform.co">Contact</a><a href="#shipping">Shipping</a><a href="#returns">Returns</a></div><div><small>Elsewhere</small><a href="https://instagram.com">Instagram</a><a href="https://tiktok.com">TikTok</a><a href="mailto:hello@noirform.co">Email us</a></div></div><div className="footer-bottom"><span>© 2026 NOIR/FORM</span><span>Accra, Ghana / Worldwide</span><span>Privacy &nbsp; Terms</span></div></footer> }
+function Home({ onAdd, onOpen }) {
+  const route = window.location.hash.slice(1);
+  if (["collections", "about", "contact", "privacy", "terms"].includes(route))
+    return <RoutePage page={route} onShop={() => go("#shop")} />;
+  return (
+    <main className="home-view">
+      <section className="hero">
+        <div className="hero-copy">
+          <p className="eyebrow">SS26 / THE QUIET FORM</p>
+          <h1>
+            Dress with
+            <br />
+            <em>intention.</em>
+          </h1>
+          <p>
+            Considered essentials for the lives we actually live. Designed in
+            Accra, made in small runs.
+          </p>
+          <a className="button light" href="#shop">
+            Shop collection <ArrowRight size={16} />
+          </a>
+        </div>
+        <img src={images.hero} alt="Model wearing a minimal black dress" />
+        <div className="hero-meta">
+          <span>01 / 03</span>
+          <span>Scroll to explore ↓</span>
+        </div>
+      </section>
+      <div className="ticker">
+        <span>MADE SLOWLY</span>
+        <span>WORN OFTEN</span>
+        <span>NOIR/FORM</span>
+        <span>MADE SLOWLY</span>
+      </div>
+      <section className="section" id="featured">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">01 / THE EDIT</p>
+            <h2>Essential forms</h2>
+          </div>
+          <a className="text-link" href="#shop">
+            View all pieces <ArrowRight size={15} />
+          </a>
+        </div>
+        <div className="product-grid">
+          {products.slice(0, 4).map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAdd={onAdd}
+              onOpen={onOpen}
+            />
+          ))}
+        </div>
+      </section>
+      <section className="collection" id="collections">
+        <img
+          src={images.collection}
+          alt="Editorial portrait in monochrome tailoring"
+        />
+        <div className="collection-copy">
+          <p className="eyebrow">02 / SS26 COLLECTION</p>
+          <h2>
+            The new
+            <br />
+            <em>uniform.</em>
+          </h2>
+          <p>
+            A study in movement, restraint, and the spaces between. Sixteen
+            pieces designed to find their place in your everyday.
+          </p>
+          <a className="button dark" href="#shop">
+            Explore SS26 <ArrowRight size={16} />
+          </a>
+        </div>
+        <span className="vertical-label">NOIR/FORM — NEW SEASON</span>
+      </section>
+      <section className="story section" id="about">
+        <div className="story-copy">
+          <p className="eyebrow">03 / THE STUDIO</p>
+          <h2>
+            Clothes with
+            <br />
+            <em>a point of view.</em>
+          </h2>
+          <p>
+            NOIR/FORM is an independent clothing studio founded by Ama Mensah.
+            We make fewer, better pieces from a small studio in Accra, Ghana.
+            Each garment begins with a question: how can it be simpler, more
+            useful, more you?
+          </p>
+          <a className="text-link" href="#about">
+            Our story <ArrowRight size={15} />
+          </a>
+        </div>
+        <div className="story-images">
+          <img src={images.studio} alt="Clothing rack in a studio" />
+          <img
+            src={images.portrait}
+            alt="Person in a white shirt and dark trousers"
+          />
+        </div>
+      </section>
+      <section className="social section" id="contact">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">04 / @NOIRFORM</p>
+            <h2>Seen in the wild.</h2>
+          </div>
+          <a
+            className="text-link"
+            href="https://instagram.com"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Follow along <ArrowRight size={15} />
+          </a>
+        </div>
+        <div className="social-grid">
+          {[
+            products[1].image,
+            products[2].image,
+            products[4].image,
+            products[7].image,
+          ].map((image, index) => (
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noreferrer"
+              key={image}
+            >
+              <img src={image} alt={`NOIR/FORM look ${index + 1}`} />
+              <Camera className="social-icon" size={20} />
+            </a>
+          ))}
+        </div>
+      </section>
+      <section className="newsletter">
+        <div>
+          <p className="eyebrow">THE INSIDE LINE</p>
+          <h2>Stay in the know.</h2>
+          <p>
+            New drops, studio notes, and the occasional good thing in your
+            inbox.
+          </p>
+        </div>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            event.currentTarget.reset();
+            alert("You are on the list.");
+          }}
+        >
+          <input
+            type="email"
+            placeholder="Your email address"
+            aria-label="Email address"
+            required
+          />
+          <button className="button light">
+            Join the list <ArrowRight size={16} />
+          </button>
+        </form>
+      </section>
+    </main>
+  );
+}
+function Shop({ onAdd, onOpen }) {
+  const [category, setCategory] = useState("All");
+  const [sort, setSort] = useState("featured");
+  const list = useMemo(() => {
+    let result =
+      category === "All"
+        ? products
+        : products.filter((product) => product.category === category);
+    return [...result].sort((a, b) =>
+      sort === "price-low"
+        ? (a.sale || a.price) - (b.sale || b.price)
+        : sort === "price-high"
+          ? (b.sale || b.price) - (a.sale || a.price)
+          : 0,
+    );
+  }, [category, sort]);
+  return (
+    <main className="shop">
+      <div className="page-intro">
+        <p className="eyebrow">NOIR/FORM / SHOP</p>
+        <h1>All pieces</h1>
+        <p>Everyday forms, considered in Ghana.</p>
+      </div>
+      <div className="shop-toolbar">
+        <label className="sort-control">
+          <span>Sort</span>
+          <select
+            value={sort}
+            onChange={(event) => setSort(event.target.value)}
+          >
+            <option value="featured">Featured</option>
+            <option value="price-low">Price: low to high</option>
+            <option value="price-high">Price: high to low</option>
+          </select>
+          <ChevronDown size={14} />
+        </label>
+        <div className="categories">
+          {["All", "Tops", "Bottoms", "Dresses"].map((item) => (
+            <button
+              className={category === item ? "active" : ""}
+              key={item}
+              onClick={() => setCategory(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      </div>
+      <p className="result-count">{list.length} pieces</p>
+      <div className="product-grid shop-grid">
+        {list.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            onAdd={onAdd}
+            onOpen={onOpen}
+          />
+        ))}
+      </div>
+    </main>
+  );
+}
+function Product({ product, onAdd, onBuy }) {
+  const [size, setSize] = useState(product.sizes[1]);
+  const [image, setImage] = useState(product.image);
+  const discount = product.sale
+    ? Math.round((1 - product.sale / product.price) * 100)
+    : 0;
+  return (
+    <main className="product-page">
+      <button className="back" onClick={() => go("#shop")}>
+        <ChevronLeft size={16} /> Back to shop
+      </button>
+      <div className="product-detail">
+        <div className="gallery">
+          <img src={image} alt={product.name} />
+          <div className="thumbs">
+            <button onClick={() => setImage(product.image)}>
+              <img src={product.image} alt="" />
+            </button>
+            <button onClick={() => setImage(images.portrait)}>
+              <img src={images.portrait} alt="" />
+            </button>
+          </div>
+        </div>
+        <div className="product-copy">
+          <p className="eyebrow">{product.category} / SS26</p>
+          <h1>{product.name}</h1>
+          <div className="detail-price">
+            <strong>{money(product.sale || product.price)}</strong>
+            {product.sale && (
+              <>
+                <del>{money(product.price)}</del>
+                <b>{discount}% off</b>
+              </>
+            )}
+          </div>
+          <p className="description">
+            A considered essential with a quiet point of view. Cut for ease and
+            made in small batches from thoughtfully sourced fabric.
+          </p>
+          <hr />
+          <div className="option">
+            <div>
+              <strong>Size</strong>
+              <button className="size-guide">Size guide</button>
+            </div>
+            <div className="size-options">
+              {product.sizes.map((item) => (
+                <button
+                  className={size === item ? "selected" : ""}
+                  key={item}
+                  onClick={() => setSize(item)}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="option">
+            <strong>Color</strong>
+            <div className="color-choice">
+              <span />
+              {product.colors[0]}
+            </div>
+          </div>
+          <div className="stock">
+            <span /> In stock — ships in 2–4 days
+          </div>
+          <button
+            className="button dark add-detail"
+            onClick={() => onAdd(product, size)}
+          >
+            Add to cart <ShoppingBag size={16} />
+          </button>
+          <button
+            className="button buy-detail"
+            onClick={() => onBuy(product, size)}
+          >
+            Buy now <ArrowRight size={16} />
+          </button>
+          <button className="wishlist">
+            <Heart size={16} /> Add to wishlist
+          </button>
+          <div className="details">
+            <details open>
+              <summary>
+                Product details <Plus size={15} />
+              </summary>
+              <p>
+                100% cotton. Made in Ghana. Designed for a relaxed fit. Cold
+                hand wash and line dry.
+              </p>
+            </details>
+            <details>
+              <summary>
+                Shipping & returns <Plus size={15} />
+              </summary>
+              <p>
+                Delivery across Ghana in 2–4 business days. International
+                delivery calculated at checkout. Returns accepted within 14
+                days.
+              </p>
+            </details>
+            <details>
+              <summary>
+                Reviews <Plus size={15} />
+              </summary>
+              <p>No reviews yet. Be the first to share your experience.</p>
+            </details>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+function CartDrawer({ cart, open, close, update, remove, checkout }) {
+  const subtotal = cart.reduce(
+    (sum, item) =>
+      sum + (item.product.sale || item.product.price) * item.quantity,
+    0,
+  );
+  return (
+    <>
+      <div className={`overlay ${open ? "show" : ""}`} onClick={close} />
+      <aside className={`cart-drawer ${open ? "open" : ""}`}>
+        <div className="drawer-head">
+          <h2>
+            Your cart{" "}
+            <span>{cart.reduce((sum, item) => sum + item.quantity, 0)}</span>
+          </h2>
+          <button onClick={close}>
+            <X size={19} />
+          </button>
+        </div>
+        {cart.length === 0 ? (
+          <div className="empty-cart">
+            <ShoppingBag size={30} />
+            <p>Your cart is waiting.</p>
+            <button
+              onClick={() => {
+                close();
+                go("#shop");
+              }}
+            >
+              Explore pieces <ArrowRight size={15} />
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="drawer-items">
+              {cart.map((item) => (
+                <div
+                  className="drawer-item"
+                  key={`${item.product.id}-${item.size}`}
+                >
+                  <img src={item.product.image} alt={item.product.name} />
+                  <div>
+                    <h3>{item.product.name}</h3>
+                    <p>
+                      {item.size} / {item.product.colors[0]}
+                    </p>
+                    <div className="quantity">
+                      <button onClick={() => update(item, -1)}>
+                        <Minus size={12} />
+                      </button>
+                      <span>{item.quantity}</span>
+                      <button onClick={() => update(item, 1)}>
+                        <Plus size={12} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="drawer-item-price">
+                    <strong>
+                      {money(
+                        (item.product.sale || item.product.price) *
+                          item.quantity,
+                      )}
+                    </strong>
+                    <button onClick={() => remove(item)}>Remove</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="drawer-footer">
+              <p className="shipping-note">
+                Free delivery on orders over GHS 1,000
+              </p>
+              <div className="summary-line">
+                <span>Subtotal</span>
+                <strong>{money(subtotal)}</strong>
+              </div>
+              <button className="button dark full" onClick={checkout}>
+                Checkout <ArrowRight size={16} />
+              </button>
+              <button className="continue" onClick={close}>
+                Continue shopping
+              </button>
+            </div>
+          </>
+        )}
+      </aside>
+    </>
+  );
+}
+function Checkout({ cart, onComplete }) {
+  const total = cart.reduce(
+    (sum, item) =>
+      sum + (item.product.sale || item.product.price) * item.quantity,
+    0,
+  );
+  const [form, setForm] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const change = (event) =>
+    setForm({ ...form, [event.target.name]: event.target.value });
+  return (
+    <main className="checkout">
+      <div className="checkout-top">
+        <a className="logo" href="#home">
+          NOIR<span>/</span>FORM
+        </a>
+        <span>Secure checkout</span>
+      </div>
+      <div className="checkout-layout">
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            setSubmitting(true);
+            setError("");
+            Promise.resolve(onComplete(form, total)).catch((reason) => {
+              setError(reason.message || "Payment could not be started.");
+              setSubmitting(false);
+            });
+          }}
+        >
+          <p className="eyebrow">YOUR DETAILS</p>
+          <h1>
+            Ready when
+            <br />
+            <em>you are.</em>
+          </h1>
+          <div className="form-grid">
+            {[
+              ["name", "Full name"],
+              ["email", "Email"],
+              ["phone", "Phone number"],
+              ["city", "City"],
+            ].map(([name, label]) => (
+              <label key={name}>
+                {label}
+                <input
+                  name={name}
+                  type={
+                    name === "email"
+                      ? "email"
+                      : name === "phone"
+                        ? "tel"
+                        : "text"
+                  }
+                  onChange={change}
+                  required
+                />
+              </label>
+            ))}
+            <label className="full">
+              Delivery address
+              <textarea name="address" rows="3" onChange={change} required />
+            </label>
+            <label>
+              Region
+              <select name="region" onChange={change} required>
+                <option value="">Select region</option>
+                <option>Greater Accra</option>
+                <option>Ashanti</option>
+                <option>Central</option>
+                <option>Eastern</option>
+                <option>Western</option>
+              </select>
+            </label>
+            <label>
+              Delivery instructions
+              <input
+                name="instructions"
+                onChange={change}
+                placeholder="Optional"
+              />
+            </label>
+          </div>
+          {error && <p className="form-error">{error}</p>}
+          <button className="button dark full" disabled={submitting}>
+            {submitting ? "Opening secure payment..." : "Continue to payment"} <ArrowRight size={16} />
+          </button>
+          <p className="secure">
+            Paystack secure payment. Guest checkout, no account required.
+          </p>
+        </form>
+        <aside className="checkout-summary">
+          <p className="eyebrow">ORDER SUMMARY</p>
+          {cart.map((item) => (
+            <div
+              className="summary-item"
+              key={`${item.product.id}-${item.size}`}
+            >
+              <img src={item.product.image} alt="" />
+              <div>
+                <strong>{item.product.name}</strong>
+                <span>
+                  {item.size} / Qty {item.quantity}
+                </span>
+              </div>
+              <b>
+                {money(
+                  (item.product.sale || item.product.price) * item.quantity,
+                )}
+              </b>
+            </div>
+          ))}
+          <div className="summary-total">
+            <span>Total</span>
+            <strong>{money(total)}</strong>
+          </div>
+        </aside>
+      </div>
+    </main>
+  );
+}
+function Footer() {
+  return (
+    <footer>
+      <div className="footer-top">
+        <a className="logo" href="#home">
+          NOIR<span>/</span>FORM
+        </a>
+        <p>
+          Independent clothing
+          <br />
+          for considered lives.
+        </p>
+        <a href="#home" className="back-top">
+          Back to top ↑
+        </a>
+      </div>
+      <div className="footer-links">
+        <div>
+          <small>Explore</small>
+          <a href="#shop">Shop all</a>
+          <a href="#collections">Collections</a>
+          <a href="#about">Our story</a>
+        </div>
+        <div>
+          <small>Help</small>
+          <a href="#track">Track order</a>
+          <a href="mailto:hello@noirform.co">Contact</a>
+          <a href="#shipping">Shipping</a>
+          <a href="#returns">Returns</a>
+        </div>
+        <div>
+          <small>Elsewhere</small>
+          <a href="https://instagram.com">Instagram</a>
+          <a href="https://tiktok.com">TikTok</a>
+          <a href="mailto:hello@noirform.co">Email us</a>
+        </div>
+      </div>
+      <div className="footer-bottom">
+        <span>© 2026 NOIR/FORM</span>
+        <span>Accra, Ghana / Worldwide</span>
+        <span>Privacy &nbsp; Terms</span>
+      </div>
+    </footer>
+  );
+}
 
-function TrackOrder() { const [details, setDetails] = useState({ order: '', email: '' }); const [result, setResult] = useState(null); const submit = event => { event.preventDefault(); const saved = JSON.parse(localStorage.getItem('noir-last-order') || 'null'); const matches = saved && saved.order.toLowerCase() === details.order.trim().toLowerCase() && saved.customer.email.toLowerCase() === details.email.trim().toLowerCase(); setResult(matches ? saved : false) }; return <main className="track-page"><p className="eyebrow">NOIR/FORM / DELIVERY</p><h1>Where is your<br /><em>order?</em></h1><p className="track-intro">Enter your order number and email to see the latest delivery update.</p><form className="track-form" onSubmit={submit}><label>Order number<input value={details.order} onChange={event => setDetails({ ...details, order: event.target.value })} placeholder="NF-000000" required /></label><label>Email address<input type="email" value={details.email} onChange={event => setDetails({ ...details, email: event.target.value })} placeholder="you@example.com" required /></label><button className="button dark" type="submit">Track order <ArrowRight size={16} /></button></form>{result === false && <p className="track-error">We could not find that order. Check your details or contact us at hello@noirform.co.</p>}{result && <div className="tracking-card"><div className="tracking-head"><div><p className="eyebrow">ORDER {result.order}</p><h2>On its way to you.</h2></div><span>Payment successful</span></div><div className="tracking-line"><div className="tracking-step complete"><b>01</b><strong>Order confirmed</strong><small>We received your order</small></div><div className="tracking-step active"><b>02</b><strong>Preparing your pieces</strong><small>Your order is being packed</small></div><div className="tracking-step"><b>03</b><strong>Out for delivery</strong><small>Expected in 2–4 days</small></div></div><div className="tracking-address"><span>Delivering to</span><strong>{result.customer.name}</strong><p>{result.customer.address}, {result.customer.city}, {result.customer.region}</p></div></div>}</main> }
+function TrackOrder() {
+  const [details, setDetails] = useState({ order: "", email: "" });
+  const [result, setResult] = useState(null);
+  const submit = (event) => {
+    event.preventDefault();
+    const saved = JSON.parse(localStorage.getItem("noir-last-order") || "null");
+    const matches =
+      saved &&
+      saved.order.toLowerCase() === details.order.trim().toLowerCase() &&
+      saved.customer.email.toLowerCase() === details.email.trim().toLowerCase();
+    setResult(matches ? saved : false);
+  };
+  return (
+    <main className="track-page">
+      <p className="eyebrow">NOIR/FORM / DELIVERY</p>
+      <h1>
+        Where is your
+        <br />
+        <em>order?</em>
+      </h1>
+      <p className="track-intro">
+        Enter your order number and email to see the latest delivery update.
+      </p>
+      <form className="track-form" onSubmit={submit}>
+        <label>
+          Order number
+          <input
+            value={details.order}
+            onChange={(event) =>
+              setDetails({ ...details, order: event.target.value })
+            }
+            placeholder="NF-000000"
+            required
+          />
+        </label>
+        <label>
+          Email address
+          <input
+            type="email"
+            value={details.email}
+            onChange={(event) =>
+              setDetails({ ...details, email: event.target.value })
+            }
+            placeholder="you@example.com"
+            required
+          />
+        </label>
+        <button className="button dark" type="submit">
+          Track order <ArrowRight size={16} />
+        </button>
+      </form>
+      {result === false && (
+        <p className="track-error">
+          We could not find that order. Check your details or contact us at
+          hello@noirform.co.
+        </p>
+      )}
+      {result && (
+        <div className="tracking-card">
+          <div className="tracking-head">
+            <div>
+              <p className="eyebrow">ORDER {result.order}</p>
+              <h2>On its way to you.</h2>
+            </div>
+            <span>Payment successful</span>
+          </div>
+          <div className="tracking-line">
+            <div className="tracking-step complete">
+              <b>01</b>
+              <strong>Order confirmed</strong>
+              <small>We received your order</small>
+            </div>
+            <div className="tracking-step active">
+              <b>02</b>
+              <strong>Preparing your pieces</strong>
+              <small>Your order is being packed</small>
+            </div>
+            <div className="tracking-step">
+              <b>03</b>
+              <strong>Out for delivery</strong>
+              <small>Expected in 2–4 days</small>
+            </div>
+          </div>
+          <div className="tracking-address">
+            <span>Delivering to</span>
+            <strong>{result.customer.name}</strong>
+            <p>
+              {result.customer.address}, {result.customer.city},{" "}
+              {result.customer.region}
+            </p>
+          </div>
+        </div>
+      )}
+    </main>
+  );
+}
 
-export default function App() { const hash = useHash(); const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('noir-cart') || '[]')); const [cartOpen, setCartOpen] = useState(false); const [searchOpen, setSearchOpen] = useState(false); useEffect(() => localStorage.setItem('noir-cart', JSON.stringify(cart)), [cart]); const add = (product, size = product.sizes[1]) => { setCart(current => { const found = current.find(item => item.product.id === product.id && item.size === size); return found ? current.map(item => item === found ? { ...item, quantity: item.quantity + 1 } : item) : [...current, { product, size, quantity: 1 }] }) }; const buy = (product, size) => { add(product, size); setCartOpen(true) }; const update = (item, amount) => setCart(current => current.map(entry => entry === item ? { ...entry, quantity: Math.max(1, entry.quantity + amount) } : entry)); const remove = item => setCart(current => current.filter(entry => entry !== item)); const count = cart.reduce((sum, item) => sum + item.quantity, 0); let page = hash.slice(1).split('/')[0] || 'home'; const sectionHashes = ['collections', 'about', 'contact', 'shipping', 'returns']; const section = sectionHashes.includes(page) ? page : ''; if (section) page = 'home'; useEffect(() => { if (section) document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' }); else window.scrollTo({ top: 0, behavior: 'smooth' }) }, [hash, section]); const id = Number(hash.split('/')[1]); const product = products.find(item => item.id === id); const complete = (customer, total) => { const order = `NF-${Date.now().toString().slice(-6)}`; localStorage.setItem('noir-last-order', JSON.stringify({ order, customer, total, items: cart })); setCart([]); go('#confirmation') }; return <><Header cartCount={count} openCart={() => setCartOpen(true)} onSearch={() => setSearchOpen(!searchOpen)} />{searchOpen && <div className="search-bar"><Search size={16} /><input autoFocus placeholder="Search pieces..." onKeyDown={event => { if (event.key === 'Enter') { setSearchOpen(false); go('#shop') } }} /></div>}{page === 'shop' && <Shop onAdd={add} onOpen={id => go(`#product/${id}`)} />}{page === 'product' && product && <Product product={product} onAdd={add} onBuy={buy} />}{page === 'checkout' && <Checkout cart={cart} onComplete={complete} />}{page === 'confirmation' && <Confirmation />}{page === 'track' && <TrackOrder />}{page === 'home' && <Home onAdd={add} onOpen={id => go(`#product/${id}`)} />}{page !== 'checkout' && page !== 'confirmation' && <Footer />}<CartDrawer cart={cart} open={cartOpen} close={() => setCartOpen(false)} update={update} remove={remove} checkout={() => { setCartOpen(false); go('#checkout') }} /></> }
-function Confirmation() { const order = JSON.parse(localStorage.getItem('noir-last-order') || '{}'); return <main className="confirmation"><div className="confirmation-mark">/</div><p className="eyebrow">ORDER CONFIRMED</p><h1>Thank you for<br /><em>your order.</em></h1><p>We have sent your confirmation to {order.customer?.email || 'your email address'}. Your pieces are being prepared with care.</p><div className="confirmation-box"><span>Order number</span><strong>{order.order || 'NF-000000'}</strong><span>Total paid</span><strong>{money(order.total || 0)}</strong><span>Status</span><strong>Payment successful</strong></div><div className="confirmation-order" id="order-summary"><div className="confirmation-order-head"><p className="eyebrow">YOUR ORDER</p><strong>{order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0} items</strong></div>{(order.items || []).map(item => <div className="confirmation-item" key={`${item.product.id}-${item.size}`}><img src={item.product.image} alt="" /><div><strong>{item.product.name}</strong><span>{item.size} / {item.product.colors[0]} / Qty {item.quantity}</span></div><b>{money((item.product.sale || item.product.price) * item.quantity)}</b></div>)}</div><a className="button dark" href="#order-summary">View your order <ArrowRight size={16} /></a><a className="button light" href="#shop">Continue shopping <ArrowRight size={16} /></a></main> }
+export default function App() {
+  const hash = useHash();
+  const [catalog, setCatalog] = useState(fallbackProducts);
+  const [cart, setCart] = useState(() =>
+    JSON.parse(localStorage.getItem("noir-cart") || "[]"),
+  );
+  const [cartOpen, setCartOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  useEffect(() => {
+    fetch("/api/products")
+      .then((response) =>
+        response.ok
+          ? response.json()
+          : Promise.reject(new Error("Catalog unavailable")),
+      )
+      .then((body) => {
+        const list = (body.data || []).map(mapProduct);
+        if (list.length) {
+          products = list;
+          setCatalog(list);
+        }
+      })
+      .catch(() => {});
+  }, []);
+  useEffect(() => {
+    const reference = new URLSearchParams(window.location.search).get("reference");
+    const pending = JSON.parse(localStorage.getItem("noir-pending-checkout") || "null");
+    if (!reference || !pending) return;
+    fetch("/api/paystack/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reference, order_id: pending.order_id }),
+    })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok || result.status !== "paid") throw new Error(result.error || "Payment verification failed");
+        localStorage.setItem("noir-last-order", JSON.stringify({ ...pending, order: result.order_number }));
+        localStorage.removeItem("noir-pending-checkout");
+        window.history.replaceState({}, "", window.location.pathname);
+        go("#confirmation");
+      })
+      .catch((reason) => {
+        localStorage.setItem("noir-payment-error", reason.message);
+        window.history.replaceState({}, "", window.location.pathname);
+        go("#checkout");
+      });
+  }, []);
+  useEffect(
+    () => localStorage.setItem("noir-cart", JSON.stringify(cart)),
+    [cart],
+  );
+  const add = (product, size = product.sizes[1] || product.sizes[0]) => {
+    const variant =
+      (product.variants || []).find((item) =>
+        String(item.title).toLowerCase().includes(String(size).toLowerCase()),
+      ) || product.variants?.[0];
+    setCart((current) => {
+      const found = current.find(
+        (item) => item.product.id === product.id && item.size === size,
+      );
+      return found
+        ? current.map((item) =>
+            item === found ? { ...item, quantity: item.quantity + 1 } : item,
+          )
+        : [
+            ...current,
+            {
+              product,
+              size,
+              variant_id: variant?.id || product.variant_id,
+              quantity: 1,
+            },
+          ];
+    });
+  };
+  const buy = (product, size) => {
+    add(product, size);
+    setCartOpen(true);
+  };
+  const update = (item, amount) =>
+    setCart((current) =>
+      current.map((entry) =>
+        entry === item
+          ? { ...entry, quantity: Math.max(1, entry.quantity + amount) }
+          : entry,
+      ),
+    );
+  const remove = (item) =>
+    setCart((current) => current.filter((entry) => entry !== item));
+  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+  let page = hash.slice(1).split("/")[0] || "home";
+  const sectionHashes = [
+    "collections",
+    "about",
+    "contact",
+    "shipping",
+    "returns",
+  ];
+  const section = sectionHashes.includes(page) ? page : "";
+  if (section) page = "home";
+  useEffect(() => {
+    if (section)
+      document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [hash, section]);
+  const id = Number(hash.split("/")[1]);
+  const product = products.find((item) => item.id === id);
+  const complete = async (customer) => {
+    const response = await fetch("/api/checkout/initiate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customer,
+        items: cart.map((item) => ({ variant_id: item.variant_id, quantity: item.quantity })),
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Checkout could not be started");
+    const pending = { order_id: result.order_id, order: result.order_number, customer, total: result.total, items: cart };
+    if (result.authorization_url) {
+      localStorage.setItem("noir-pending-checkout", JSON.stringify(pending));
+      window.location.assign(result.authorization_url);
+      return;
+    }
+    const verification = await fetch("/api/paystack/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reference: result.reference, order_id: result.order_id }),
+    });
+    const verified = await verification.json();
+    if (!verification.ok || verified.status !== "paid") throw new Error(verified.error || "Payment verification failed");
+    localStorage.setItem("noir-last-order", JSON.stringify({ ...pending, order: verified.order_number }));
+    setCart([]);
+    go("#confirmation");
+  };
+  return (
+    <>
+      <Header
+        cartCount={count}
+        openCart={() => setCartOpen(true)}
+        onSearch={() => setSearchOpen(!searchOpen)}
+      />
+      {searchOpen && (
+        <div className="search-bar">
+          <Search size={16} />
+          <input
+            autoFocus
+            placeholder="Search pieces..."
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                setSearchOpen(false);
+                go("#shop");
+              }
+            }}
+          />
+        </div>
+      )}
+      {page === "shop" && (
+        <Shop onAdd={add} onOpen={(id) => go(`#product/${id}`)} />
+      )}
+      {page === "product" && product && (
+        <Product product={product} onAdd={add} onBuy={buy} />
+      )}
+      {page === "checkout" && <Checkout cart={cart} onComplete={complete} />}
+      {page === "confirmation" && <Confirmation />}
+      {page === "track" && <TrackOrder />}
+      {page === "home" && (
+        <Home onAdd={add} onOpen={(id) => go(`#product/${id}`)} />
+      )}
+      {page !== "checkout" && page !== "confirmation" && <Footer />}
+      <CartDrawer
+        cart={cart}
+        open={cartOpen}
+        close={() => setCartOpen(false)}
+        update={update}
+        remove={remove}
+        checkout={() => {
+          setCartOpen(false);
+          go("#checkout");
+        }}
+      />
+    </>
+  );
+}
+function ConfirmationLegacy() {
+  const order = JSON.parse(localStorage.getItem("noir-last-order") || "{}");
+  return (
+    <main className="confirmation">
+      <div className="confirmation-mark">/</div>
+      <p className="eyebrow">ORDER CONFIRMED</p>
+      <h1>
+        Thank you for
+        <br />
+        <em>your order.</em>
+      </h1>
+      <p>
+        We have sent your confirmation to{" "}
+        {order.customer?.email || "your email address"}. Your pieces are being
+        prepared with care.
+      </p>
+      <div className="confirmation-box">
+        <span>Order number</span>
+        <strong>{order.order || "NF-000000"}</strong>
+        <span>Total paid</span>
+        <strong>{money(order.total || 0)}</strong>
+        <span>Status</span>
+        <strong>Payment successful</strong>
+      </div>
+      <div className="confirmation-order" id="order-summary">
+        <div className="confirmation-order-head">
+          <p className="eyebrow">YOUR ORDER</p>
+          <strong>
+            {order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0}{" "}
+            items
+          </strong>
+        </div>
+        {(order.items || []).map((item) => (
+          <div
+            className="confirmation-item"
+            key={`${item.product.id}-${item.size}`}
+          >
+            <img src={item.product.image} alt="" />
+            <div>
+              <strong>{item.product.name}</strong>
+              <span>
+                {item.size} / {item.product.colors[0]} / Qty {item.quantity}
+              </span>
+            </div>
+            <b>
+              {money((item.product.sale || item.product.price) * item.quantity)}
+            </b>
+          </div>
+        ))}
+      </div>
+      <a className="button dark" href="#order-summary">
+        View your order <ArrowRight size={16} />
+      </a>
+      <a className="button light" href="#shop">
+        Continue shopping <ArrowRight size={16} />
+      </a>
+    </main>
+  );
+}
+
+function Confirmation() {
+  const order = JSON.parse(localStorage.getItem("noir-last-order") || "{}");
+  const [showOrder, setShowOrder] = useState(false);
+  const items = order.items || [];
+  return (
+    <main className="confirmation">
+      <div className="confirmation-mark">/</div>
+      <p className="eyebrow">ORDER CONFIRMED</p>
+      <h1>
+        Thank you for
+        <br />
+        <em>your order.</em>
+      </h1>
+      <p>
+        We have sent your confirmation to{" "}
+        {order.customer?.email || "your email address"}. Your pieces are being
+        prepared with care.
+      </p>
+      <div className="confirmation-box">
+        <span>Order number</span>
+        <strong>{order.order || "NF-000000"}</strong>
+        <span>Total paid</span>
+        <strong>{money(order.total || 0)}</strong>
+        <span>Status</span>
+        <strong>Payment successful</strong>
+      </div>
+      {showOrder && (
+        <div className="confirmation-order" id="order-summary">
+          <div className="confirmation-order-head">
+            <p className="eyebrow">YOUR ORDER</p>
+            <strong>
+              {items.reduce((sum, item) => sum + item.quantity, 0)} items
+            </strong>
+          </div>
+          {items.map((item) => (
+            <div
+              className="confirmation-item"
+              key={`${item.product.id}-${item.size}`}
+            >
+              <img src={item.product.image} alt="" />
+              <div>
+                <strong>{item.product.name}</strong>
+                <span>
+                  {item.size} / {item.product.colors[0]} / Qty {item.quantity}
+                </span>
+              </div>
+              <b>
+                {money(
+                  (item.product.sale || item.product.price) * item.quantity,
+                )}
+              </b>
+            </div>
+          ))}
+        </div>
+      )}
+      <button
+        className="button dark"
+        type="button"
+        aria-expanded={showOrder}
+        onClick={() => setShowOrder((open) => !open)}
+      >
+        {showOrder ? "Hide your order" : "View your order"}{" "}
+        <ArrowRight size={16} />
+      </button>
+      <a className="button light" href="#shop">
+        Continue shopping <ArrowRight size={16} />
+      </a>
+    </main>
+  );
+}

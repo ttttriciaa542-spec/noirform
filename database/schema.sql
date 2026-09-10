@@ -75,7 +75,7 @@ CREATE TABLE product_variants (
   is_active BOOLEAN DEFAULT TRUE,
   image VARCHAR(500),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
 -- Product images (gallery)
@@ -162,7 +162,7 @@ CREATE TABLE orders (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
-  FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE SET NULL,
+  FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE SET NULL
 );
 
 -- Order line items
@@ -203,7 +203,7 @@ CREATE TABLE discount_usages (
   customer_email VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE CASCADE,
-  FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL,
+  FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL
 );
 
 -- Product reviews
@@ -215,7 +215,7 @@ CREATE TABLE reviews (
   comment TEXT,
   status VARCHAR(20) DEFAULT 'Pending',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
 -- Contact messages

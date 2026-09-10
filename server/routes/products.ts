@@ -30,7 +30,7 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
 
 router.get('/:id', requireAuth, async (req, res) => {
   try {
-    const product = await fetchProductFull(parseInt(req.params.id));
+    const product = await fetchProductFull(parseInt(req.params.id as string));
     if (!product) return jsonError(res, 'Product not found', 404);
     res.json(product);
   } catch (e) {
@@ -40,7 +40,7 @@ router.get('/:id', requireAuth, async (req, res) => {
 
 router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
   try {
-    const product = await syncProduct(parseInt(req.params.id), req.body);
+    const product = await syncProduct(parseInt(req.params.id as string), req.body);
     res.json(product);
   } catch (e) {
     jsonError(res, (e as Error).message, 500);
@@ -49,7 +49,7 @@ router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
 
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
-    await deleteProduct(parseInt(req.params.id));
+    await deleteProduct(parseInt(req.params.id as string));
     res.json({ success: true });
   } catch (e) {
     jsonError(res, (e as Error).message, 500);

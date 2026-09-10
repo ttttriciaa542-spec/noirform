@@ -21,7 +21,7 @@ router.get('/', requireAuth, async (req, res) => {
 
 router.get('/:id', requireAuth, async (req, res) => {
   try {
-    const customer = (await query('SELECT * FROM customers WHERE id=?', [parseInt(req.params.id)]))[0] as any;
+    const customer = (await query('SELECT * FROM customers WHERE id=?', [parseInt(req.params.id as string)]))[0] as any;
     if (!customer) return jsonError(res, 'Customer not found', 404);
     const orders = await query('SELECT id, order_number, total, status, payment_status, created_at FROM orders WHERE customer_id=? ORDER BY id DESC', [customer.id]);
     res.json({ ...customer, orders });

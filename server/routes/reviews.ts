@@ -16,7 +16,7 @@ router.get('/', requireAuth, async (req, res) => {
 
 router.get('/:id', requireAuth, async (req, res) => {
   try {
-    const row = (await query('SELECT r.*, p.name as product FROM reviews r LEFT JOIN products p ON p.id=r.product_id WHERE r.id=?', [parseInt(req.params.id)]))[0];
+    const row = (await query('SELECT r.*, p.name as product FROM reviews r LEFT JOIN products p ON p.id=r.product_id WHERE r.id=?', [parseInt(req.params.id as string)]))[0];
     if (!row) return jsonError(res, 'Not found', 404);
     res.json(row);
   } catch (e) { jsonError(res, (e as Error).message, 500); }
@@ -33,14 +33,14 @@ router.post('/', requireAuth, async (req, res) => {
 router.patch('/:id', requireAuth, async (req, res) => {
   try {
     await execute('UPDATE reviews SET status = COALESCE(?, status), rating = COALESCE(?, rating), comment = COALESCE(?, comment) WHERE id=?',
-      [req.body.status, req.body.rating, req.body.comment, parseInt(req.params.id)]);
-    res.json((await query('SELECT * FROM reviews WHERE id=?', [parseInt(req.params.id)]))[0]);
+      [req.body.status, req.body.rating, req.body.comment, parseInt(req.params.id as string)]);
+    res.json((await query('SELECT * FROM reviews WHERE id=?', [parseInt(req.params.id as string)]))[0]);
   } catch (e) { jsonError(res, (e as Error).message, 500); }
 });
 
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
-    await execute('DELETE FROM reviews WHERE id=?', [parseInt(req.params.id)]);
+    await execute('DELETE FROM reviews WHERE id=?', [parseInt(req.params.id as string)]);
     res.json({ success: true });
   } catch (e: any) { jsonError(res, e.message, 400); }
 });
