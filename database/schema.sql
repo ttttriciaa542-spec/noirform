@@ -1,6 +1,4 @@
 -- NOIR/FORM database schema
-CREATE DATABASE noirform;
-\c noirform;
 
 -- Admin / owner user
 CREATE TABLE users (

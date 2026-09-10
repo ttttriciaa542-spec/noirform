@@ -1,5 +1,3 @@
-\c noirform;
-
 -- Owner admin user (password: noir2026)
 INSERT INTO users (email, password, name, role) VALUES
   ('owner@noirform.co', '$2b$10$J6nhiVEw77jeOUtm.HtSyOO4FTdyyi8YeiH20BQ3HkL2jLXlIGdiO', 'Ama Mensah', 'owner');
