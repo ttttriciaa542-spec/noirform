@@ -407,19 +407,17 @@ function Home({ onAdd, onOpen }) {
           </a>
         </div>
         <div className="social-grid">
-          {[
-            products[1].image,
-            products[2].image,
-            products[4].image,
-            products[7].image,
-          ].map((image, index) => (
+          {products
+            .filter((product) => product?.image)
+            .slice(0, 4)
+            .map((product, index) => (
             <a
               href="https://instagram.com"
               target="_blank"
               rel="noreferrer"
-              key={image}
+              key={product.id || product.image}
             >
-              <img src={image} alt={`NOIR/FORM look ${index + 1}`} />
+              <img src={product.image} alt={`NOIR/FORM look ${index + 1}`} />
               <Camera className="social-icon" size={20} />
             </a>
           ))}
