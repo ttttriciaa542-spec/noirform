@@ -154,6 +154,12 @@ function mapProduct(product) {
     badge: product.badge || (product.featured ? "Featured" : ""),
   };
 }
+function variantForSize(product, size) {
+  return (product.variants || []).find((variant) => {
+    const parts = String(variant.title || "").split("/");
+    return parts[parts.length - 1].trim().toLowerCase() === String(size || "").trim().toLowerCase();
+  }) || product.variants?.[0];
+}
 const money = (value) => `GHS ${value.toLocaleString()}`;
 
 function useHash() {
@@ -999,6 +1005,11 @@ export default function App() {
         if (list.length) {
           products = list;
           setCatalog(list);
+          setCart((current) => current.map((item) => {
+            const product = list.find((entry) => entry.id === item.product.id) || item.product;
+            const variant = variantForSize(product, item.size);
+            return { ...item, product, variant_id: item.variant_id || variant?.id };
+          }));
         }
       })
       .catch(() => {});
@@ -1031,17 +1042,16 @@ export default function App() {
     [cart],
   );
   const add = (product, size = product.sizes[1] || product.sizes[0]) => {
-    const variant =
-      (product.variants || []).find((item) =>
-        String(item.title).toLowerCase().includes(String(size).toLowerCase()),
-      ) || product.variants?.[0];
+    const variant = variantForSize(product, size);
     setCart((current) => {
       const found = current.find(
         (item) => item.product.id === product.id && item.size === size,
       );
       return found
         ? current.map((item) =>
-            item === found ? { ...item, quantity: item.quantity + 1 } : item,
+            item === found
+              ? { ...item, quantity: item.quantity + 1, variant_id: variant?.id || item.variant_id }
+              : item,
           )
         : [
             ...current,
@@ -1087,12 +1097,20 @@ export default function App() {
   const id = Number(hash.split("/")[1]);
   const product = products.find((item) => item.id === id);
   const complete = async (customer) => {
+    const checkoutItems = cart.map((item) => {
+      const product = products.find((entry) => entry.id === item.product.id) || item.product;
+      const variant = variantForSize(product, item.size);
+      return { item, variant_id: item.variant_id || variant?.id };
+    });
+    if (checkoutItems.some(({ variant_id }) => !variant_id)) {
+      throw new Error("This product has no available variant. Please remove it and add it again.");
+    }
     const response = await fetch("/api/checkout/initiate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         customer,
-        items: cart.map((item) => ({ variant_id: item.variant_id, quantity: item.quantity })),
+        items: checkoutItems.map(({ item, variant_id }) => ({ variant_id, quantity: item.quantity })),
       }),
     });
     const result = await response.json();
