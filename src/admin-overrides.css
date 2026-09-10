@@ -1,0 +1,18 @@
+.admin-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+@media (max-width: 680px) {
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    height: 100vh;
+  }
+}
+
+.responsive-table tr:has(.status.cancelled) td:nth-child(4) {
+  color: #b04d3e;
+  font-weight: 700;
+}
