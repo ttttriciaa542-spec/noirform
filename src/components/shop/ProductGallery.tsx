@@ -82,29 +82,47 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
         ) : null}
 
         {images.length > 1 ? (
-          <div className="mt-3 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {images.map((image, index) => (
-              <button
-                key={image.id}
-                type="button"
-                onClick={() => goToImage(index)}
-                aria-label={`Show image ${index + 1}`}
-                aria-current={index === active}
-                className={cn(
-                  "h-16 w-16 shrink-0 snap-start overflow-hidden border bg-secondary transition-all",
-                  index === active ? "border-foreground ring-1 ring-foreground" : "border-transparent opacity-70",
-                )}
-              >
-                <img
-                  src={image.url}
-                  alt=""
-                  width={image.width ?? 1024}
-                  height={image.height ?? 1280}
-                  loading="lazy"
-                  className="size-full object-cover"
+          <div className="mt-3 space-y-3">
+            <div className="flex items-center justify-center gap-2">
+              {images.map((image, index) => (
+                <button
+                  key={`${image.id}-dot`}
+                  type="button"
+                  onClick={() => goToImage(index)}
+                  aria-label={`Show image ${index + 1}`}
+                  aria-current={index === active}
+                  className={cn(
+                    "h-2.5 rounded-full transition-all",
+                    index === active ? "w-8 bg-foreground" : "w-2.5 bg-muted-foreground/40",
+                  )}
                 />
-              </button>
-            ))}
+              ))}
+            </div>
+
+            <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {images.map((image, index) => (
+                <button
+                  key={image.id}
+                  type="button"
+                  onClick={() => goToImage(index)}
+                  aria-label={`Show image ${index + 1}`}
+                  aria-current={index === active}
+                  className={cn(
+                    "h-16 w-16 shrink-0 snap-start overflow-hidden border bg-secondary transition-all",
+                    index === active ? "border-foreground ring-1 ring-foreground" : "border-transparent opacity-70",
+                  )}
+                >
+                  <img
+                    src={image.url}
+                    alt=""
+                    width={image.width ?? 1024}
+                    height={image.height ?? 1280}
+                    loading="lazy"
+                    className="size-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
           </div>
         ) : null}
       </div>

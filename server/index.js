@@ -516,6 +516,27 @@ app.get('/api/admin/products', async (_req, res) => {
   }
 });
 
+app.delete('/api/admin/products/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: 'Product id is required' });
+    }
+
+    await pool.query('DELETE FROM product_colors WHERE product_id = ?', [id]);
+    await pool.query('DELETE FROM product_sizes WHERE product_id = ?', [id]);
+    const [result] = await pool.query('DELETE FROM products WHERE id = ?', [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json({ ok: true, deletedId: id });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 app.get('/api/admin/orders', async (_req, res) => {
   try {
     const [rows] = await pool.query(`
