@@ -244,18 +244,20 @@ async function seedSampleStore() {
   const categories = [
     ['cat-bikinis', 'Bikinis', 'bikinis', 'Two-piece swimwear in warm, flattering tones.', 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80'],
     ['cat-one-piece', 'One Piece', 'one-piece', 'Clean silhouettes and premium stretch for unapologetic confidence.', 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80'],
+    ['cat-dresses', 'Dresses', 'dresses', 'Flowing silhouettes and soft resort-ready dresses for day-to-night styling.', 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=900&q=80'],
     ['cat-cover-ups', 'Cover Ups', 'cover-ups', 'Light layers that take you from beach to dinner without changing pace.', 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=80'],
     ['cat-beachwear', 'Beachwear', 'beachwear', 'Resort essentials designed for sun, sea and long afternoons outdoors.', 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80'],
     ['cat-accessories', 'Accessories', 'accessories', 'Small finishing pieces to complete your holiday look.', 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80'],
+    ['cat-tops', 'Tops', 'tops', 'Minimal silhouettes in elevated lounge and swim-ready fabrics.', 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80'],
+    ['cat-bottoms', 'Bottoms', 'bottoms', 'Tailored cuts and soft waistlines built for easy all-day wear.', 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80'],
+    ['cat-sets', 'Sets', 'sets', 'Matching pieces designed to go from poolside to sunset in one effortless look.', 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80'],
   ];
 
-  if (totalCategories === 0) {
-    for (const [id, name, slug, description, imageUrl] of categories) {
-      await pool.query(
-        'INSERT INTO categories (id, name, slug, description, image_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE updated_at = VALUES(updated_at)',
-        [id, name, slug, description, imageUrl, now, now],
-      );
-    }
+  for (const [id, name, slug, description, imageUrl] of categories) {
+    await pool.query(
+      'INSERT INTO categories (id, name, slug, description, image_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description), image_url = VALUES(image_url), updated_at = VALUES(updated_at)',
+      [id, name, slug, description, imageUrl, now, now],
+    );
   }
 
   const sizeLabels = ['XS', 'S', 'M', 'L', 'XL'];
@@ -303,6 +305,9 @@ async function seedSampleStore() {
       id: 'prod-palm-shadow', sku: 'BDC-0002', name: 'Palm Shadow Bikini', slug: 'palm-shadow-bikini', description: 'A flattering high-waist bikini with a soft matte finish and relaxed fit for all-day wear.', categoryId: 'cat-bikinis', priceCents: 34000, originalPriceCents: 42000, stock: 11, rating: 4.7, reviews: 29, isNew: 1, isFeatured: 1, isBestSeller: 0, material: 'Soft matte nylon blend with stretch recovery.', care: 'Hand wash cold and line dry.', fit: 'High-waisted fit with adjustable straps.', imageUrl: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80', colors: ['Forest', 'Sand'], sizes: { XS: 2, S: 3, M: 3, L: 2, XL: 1 },
     },
     {
+      id: 'prod-luna-slip-dress', sku: 'BDC-0011', name: 'Luna Slip Dress', slug: 'luna-slip-dress', description: 'Soft drape, satin feel and an easy silhouette for warm evenings and resort dinners.', categoryId: 'cat-dresses', priceCents: 41000, originalPriceCents: 52000, stock: 8, rating: 4.9, reviews: 44, isNew: 1, isFeatured: 1, isBestSeller: 1, material: 'Soft satin-touch viscose blend.', care: 'Cold hand wash and line dry.', fit: 'Relaxed fit with a flattering drape.', imageUrl: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=900&q=80', colors: ['Ivory', 'Black'], sizes: { XS: 2, S: 2, M: 2, L: 1, XL: 1 },
+    },
+    {
       id: 'prod-sand-dune', sku: 'BDC-0003', name: 'Sand Dune Top', slug: 'sand-dune-top', description: 'Minimal top in warm sand tones with supportive structure and clean, easy lines.', categoryId: 'cat-beachwear', priceCents: 21000, originalPriceCents: 26000, stock: 17, rating: 4.5, reviews: 18, isNew: 0, isFeatured: 1, isBestSeller: 0, material: 'Soft knit with stretch support.', care: 'Warm wash on a gentle cycle.', fit: 'Slightly fitted through the bust.', imageUrl: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80', colors: ['Sand', 'Ivory'], sizes: { XS: 4, S: 5, M: 5, L: 3, XL: 2 },
     },
     {
@@ -327,10 +332,6 @@ async function seedSampleStore() {
       id: 'prod-afterglow-set', sku: 'BDC-0010', name: 'Afterglow Resort Set', slug: 'afterglow-resort-set', description: 'A relaxed, resort-ready set layered in soft earth tones for an effortless vacation mood.', categoryId: 'cat-beachwear', priceCents: 39000, originalPriceCents: 47000, stock: 10, rating: 4.8, reviews: 31, isNew: 1, isFeatured: 1, isBestSeller: 1, material: 'Linen and stretch cotton blend.', care: 'Wash on cool and avoid high heat.', fit: 'Easy, softly relaxed fit.', imageUrl: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80', colors: ['Terracotta', 'Linen'], sizes: { XS: 2, S: 3, M: 3, L: 2, XL: 1 },
     },
   ];
-
-  if (productTotal >= productSeeds.length) {
-    return;
-  }
 
   for (const product of productSeeds) {
     await pool.query(
@@ -397,9 +398,44 @@ function normalizeProductRow(row) {
   };
 }
 
+app.get('/api/categories', async (_req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM categories ORDER BY name ASC');
+    const categories = rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      description: row.description || '',
+      image: row.image_url || '',
+    }));
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get('/api/categories/:slug', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM categories WHERE slug = ? LIMIT 1', [req.params.slug]);
+    const category = rows[0];
+    if (!category) return res.status(404).json({ message: 'Category not found' });
+
+    res.json({
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+      description: category.description || '',
+      image: category.image_url || '',
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 app.get('/api/products', async (req, res) => {
   try {
-    const [rows] = await pool.query(`
+    const { category, search, sort, limit, onSale, inStockOnly, isNew, isBestSeller } = req.query;
+    let query = `
       SELECT p.*, c.slug AS category_slug,
         GROUP_CONCAT(DISTINCT s.label ORDER BY s.sort_order SEPARATOR ',') AS sizes,
         GROUP_CONCAT(DISTINCT co.name ORDER BY co.name SEPARATOR ',') AS colors,
@@ -410,9 +446,46 @@ app.get('/api/products', async (req, res) => {
       LEFT JOIN sizes s ON s.id = ps.size_id
       LEFT JOIN product_colors pc ON pc.product_id = p.id
       LEFT JOIN colors co ON co.id = pc.color_id
-      GROUP BY p.id
-    `);
+      WHERE 1 = 1
+    `;
+    const params = [];
 
+    if (category) {
+      query += ' AND c.slug = ?';
+      params.push(String(category));
+    }
+    if (search) {
+      query += ' AND (LOWER(p.name) LIKE ? OR LOWER(p.description) LIKE ? OR LOWER(c.name) LIKE ?)';
+      const term = `%${String(search).toLowerCase()}%`;
+      params.push(term, term, term);
+    }
+    if (isNew === 'true') {
+      query += ' AND p.is_new = 1';
+    }
+    if (isBestSeller === 'true') {
+      query += ' AND p.is_best_seller = 1';
+    }
+    if (onSale === 'true') {
+      query += ' AND p.original_price_cents > p.price_cents';
+    }
+    if (inStockOnly === 'true') {
+      query += ' AND p.stock > 0';
+    }
+
+    query += ' GROUP BY p.id';
+
+    if (sort === 'price-asc') query += ' ORDER BY p.price_cents ASC';
+    else if (sort === 'price-desc') query += ' ORDER BY p.price_cents DESC';
+    else if (sort === 'newest') query += ' ORDER BY p.created_at DESC';
+    else if (sort === 'best-selling') query += ' ORDER BY p.reviews DESC';
+    else query += ' ORDER BY p.is_featured DESC, p.created_at DESC';
+
+    if (limit) {
+      query += ' LIMIT ?';
+      params.push(Number(limit));
+    }
+
+    const [rows] = await pool.query(query, params);
     const products = rows.map(normalizeProductRow);
     res.json(products);
   } catch (error) {
