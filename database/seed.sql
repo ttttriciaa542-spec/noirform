@@ -1,103 +1,84 @@
--- Owner admin user (password: noir2026)
-INSERT INTO users (email, password, name, role) VALUES
-  ('owner@noirform.co', '$2b$10$J6nhiVEw77jeOUtm.HtSyOO4FTdyyi8YeiH20BQ3HkL2jLXlIGdiO', 'Ama Mensah', 'owner');
+-- Seed data is intentionally lightweight and keeps the UI look the same.
+-- Insert shop settings.
+INSERT OR IGNORE INTO shop_settings (
+  id, store_name, tagline, store_email, store_phone, store_address,
+  currency, currency_symbol, timezone, maintenance_mode, maintenance_message, updated_at
+) VALUES (
+  'shop-settings',
+  'BigDotCollections',
+  'Women\'s swimwear and fashion, made in Ghana.',
+  'hello@bigdotcollections.com',
+  '+233 30 220 1234',
+  '12 Coastal Road, Accra, Greater Accra, Ghana',
+  'GHS',
+  'GH₵',
+  'Africa/Accra',
+  0,
+  NULL,
+  '2026-08-20T12:00:00Z'
+);
 
--- Global settings
-INSERT INTO settings ("key", value, type, category) VALUES
-  ('brand_name', 'NOIR/FORM', 'Text', 'general'),
-  ('currency', 'GHS', 'Text', 'general'),
-  ('currency_symbol', 'GHS ', 'Text', 'general'),
-  ('contact_email', 'hello@noirform.co', 'Text', 'general'),
-  ('phone', '+233 20 000 0000', 'Text', 'general'),
-  ('instagram_url', 'https://instagram.com', 'URL', 'social'),
-  ('tiktok_url', 'https://tiktok.com', 'URL', 'social'),
-  ('facebook_url', 'https://facebook.com', 'URL', 'social'),
-  ('x_url', 'https://x.com', 'URL', 'social'),
-  ('hero_title', 'Dress with intention.', 'Text', 'content'),
-  ('hero_description', 'Considered essentials for the lives we actually live. Designed in Accra, made in small runs.', 'Textarea', 'content'),
-  ('hero_button', 'Shop collection', 'Text', 'content'),
-  ('announcement', 'New collection available now', 'Text', 'content'),
-  ('announcement_link', '#shop', 'Text', 'content'),
-  ('founder_story', 'NOIR/FORM is an independent clothing studio founded by Ama Mensah. We make fewer, better pieces from a small studio in Accra, Ghana.', 'Textarea', 'content'),
-  ('shipping_fee', '150', 'Number', 'shipping'),
-  ('free_shipping_threshold', '1000', 'Number', 'shipping'),
-  ('shipping_estimate', '2-4 days', 'Text', 'shipping'),
-  ('privacy_policy', 'Your data is safe with us.', 'Textarea', 'policies'),
-  ('terms', 'Terms and conditions apply.', 'Textarea', 'policies'),
-  ('refund_policy', 'Returns accepted within 14 days.', 'Textarea', 'policies'),
-  ('paystack_public_key', '', 'Text', 'payments'),
-  ('paystack_secret_key', '', 'Text', 'payments');
+INSERT OR IGNORE INTO appearance_settings (
+  id, primary_color, secondary_color, accent_color, background_color,
+  surface_color, text_color, muted_text_color, border_color,
+  heading_font, body_font, border_radius, updated_at
+) VALUES (
+  'appearance-settings',
+  '#3a3a38', '#d8c3a5', '#b8532c', '#f5f0e8',
+  '#faf8f4', '#2c2c2a', '#6b6560', '#e0d9ce',
+  'Bodoni Moda', 'Jost', 'md', '2026-08-20T12:00:00Z'
+);
 
--- Categories
-INSERT INTO categories (name, slug, parent_id, sort_order) VALUES
-  ('Dresses', 'dresses', NULL, 1),
-  ('Bottoms', 'bottoms', NULL, 2),
-  ('Tops', 'tops', NULL, 3),
-  ('Accessories', 'accessories', NULL, 4);
+INSERT OR IGNORE INTO categories (id, name, slug, description, image_url, sort_order, is_visible, created_at, updated_at)
+VALUES
+  ('c1', 'Bikinis', 'bikinis', 'Two-piece shapes cut to flatter, in tonal shades built for the sun.', '/assets/p1.jpg', 0, 1, '2026-01-01', '2026-08-20'),
+  ('c2', 'Swimwear', 'swimwear', 'One-pieces and swim sets designed for water and everything after it.', '/assets/p3.jpg', 1, 1, '2026-01-01', '2026-08-20'),
+  ('c3', 'Dresses', 'dresses', 'From slip minis to long linen — dresses that carry the whole day.', '/assets/p5.jpg', 2, 1, '2026-01-01', '2026-08-20'),
+  ('c4', 'Tops', 'tops', 'Knits, crops and clean lines to build the rest of the look around.', '/assets/p6.jpg', 3, 1, '2026-01-01', '2026-08-20'),
+  ('c5', 'Bottoms', 'bottoms', 'Relaxed trousers, skirts and shorts in warm, wearable neutrals.', '/assets/p7.jpg', 4, 1, '2026-01-01', '2026-08-20'),
+  ('c6', 'Sets', 'sets', 'Matched pieces, one decision. Wear together or break them apart.', '/assets/p2.jpg', 5, 1, '2026-01-01', '2026-08-20'),
+  ('c7', 'Beachwear', 'beachwear', 'Cover-ups and easy layers for sand, boat days and long evenings.', '/assets/p1.jpg', 6, 1, '2026-01-01', '2026-08-20'),
+  ('c8', 'Accessories', 'accessories', 'Bags, shades and small pieces that finish the look.', '/assets/p8.jpg', 7, 1, '2026-01-01', '2026-08-20');
 
--- Collections
-INSERT INTO collections (title, slug, description, published, sort_order) VALUES
-  ('SS26 The Quiet Form', 'ss26-quiet-form', 'A study in movement, restraint, and the spaces between.', TRUE, 1),
-  ('Studio Editions', 'studio-editions', 'Curated pieces from the Accra studio.', TRUE, 2);
+INSERT OR IGNORE INTO collections (id, name, slug, tagline, description, image_url, is_visible, sort_order, created_at, updated_at)
+VALUES
+  ('col1', 'The Summer Edit', 'summer-edit', 'Pieces made for sun-soaked days.', 'Warm neutrals, easy shapes and fabric that moves. The edit we keep coming back to.', '/assets/editorial.jpg', 1, 0, '2026-01-01', '2026-08-20'),
+  ('col2', 'Vacation Mode', 'vacation-mode', 'Packed in five minutes. Worn all week.', 'A short list of pieces that work from the airport to the last night out.', '/assets/hero-mobile.jpg', 1, 1, '2026-01-01', '2026-08-20'),
+  ('col3', 'Beach Club', 'beach-club', 'Water, sand, and somewhere to be after.', 'Swim and cover-ups styled to be seen, not just swum in.', '/assets/campaign.jpg', 1, 2, '2026-01-01', '2026-08-20');
 
--- Products
-INSERT INTO products (name, slug, sku, price, compare_price, status, featured, badge, description) VALUES
-  ('The Column Dress', 'the-column-dress', 'NF-CD-001', 680, 780, 'Published', TRUE, 'Bestseller', 'A considered essential with a quiet point of view.'),
-  ('Form Trouser', 'form-trouser', 'NF-FT-002', 540, NULL, 'Published', FALSE, 'New', 'Tailored trousers cut for ease.'),
-  ('The Essential Shirt', 'the-essential-shirt', 'NF-ES-003', 350, 420, 'Published', TRUE, 'Studio pick', 'The shirt that does everything.'),
-  ('Soft Structure Blazer', 'soft-structure-blazer', 'NF-SB-004', 980, NULL, 'Draft', FALSE, NULL, 'An unstructured layer for everyday wear.'),
-  ('The Longline Skirt', 'the-longline-skirt', 'NF-LS-005', 620, NULL, 'Published', FALSE, 'New', 'A fluid skirt for movement.'),
-  ('Frame Tank', 'frame-tank', 'NF-FT-006', 260, NULL, 'Published', FALSE, NULL, 'A simple essential tank.'),
-  ('Cocoon Coat', 'cocoon-coat', 'NF-CC-007', 1250, NULL, 'Published', FALSE, NULL, 'An oversized coat for cooler days.'),
-  ('Everyday Pleat', 'everyday-pleat', 'NF-EP-008', 620, NULL, 'Published', FALSE, NULL, 'A pleated dress for everyday.');
+INSERT OR IGNORE INTO users (id, email, full_name, password_hash, role, is_active, created_at, updated_at)
+VALUES
+  ('user-admin', 'admin@bigdotcollections.com', 'Admin User', 'demo-hash', 'admin', 1, '2026-01-01', '2026-08-20'),
+  ('user-cust-1', 'ami.k@email.com', 'Amira K.', 'demo-hash', 'customer', 1, '2026-03-15', '2026-08-27'),
+  ('user-cust-2', 'kwame.b@email.com', 'Kwame B.', 'demo-hash', 'customer', 1, '2026-04-20', '2026-08-25');
 
--- Product variants (size/color) + inventory
-INSERT INTO product_variants (product_id, title, sku, price, compare_price, inventory, image) VALUES
-  (1, 'Ink / S', 'NF-CD-001-IK-S', 680, 780, 12, NULL),
-  (1, 'Ink / M', 'NF-CD-001-IK-M', 680, 780, 8, NULL),
-  (1, 'Ink / L', 'NF-CD-001-IK-L', 680, 780, 5, NULL),
-  (2, 'Ink / 28', 'NF-FT-002-IK-28', 540, NULL, 10, NULL),
-  (2, 'Bone / 28', 'NF-FT-002-BN-28', 540, NULL, 6, NULL),
-  (2, 'Ink / 30', 'NF-FT-002-IK-30', 540, NULL, 4, NULL),
-  (3, 'Bone / S', 'NF-ES-003-BN-S', 350, 420, 7, NULL),
-  (3, 'Bone / M', 'NF-ES-003-BN-M', 350, 420, 3, NULL),
-  (3, 'Bone / L', 'NF-ES-003-BN-L', 350, 420, 0, NULL),
-  (4, 'Ink / S', 'NF-SB-004-IK-S', 980, NULL, 2, NULL),
-  (5, 'Ink / 6', 'NF-LS-005-IK-6', 620, NULL, 9, NULL),
-  (6, 'Bone / S', 'NF-FT-006-BN-S', 260, NULL, 15, NULL),
-  (7, 'Ink / M', 'NF-CC-007-IK-M', 1250, NULL, 1, NULL),
-  (8, 'Bone / S', 'NF-EP-008-BN-S', 620, NULL, 0, NULL);
+INSERT OR IGNORE INTO customers (id, user_id, phone, accepts_marketing, created_at, updated_at)
+VALUES
+  ('cust-001', 'user-cust-1', '+233 244 123 456', 1, '2026-03-15', '2026-08-27'),
+  ('cust-002', 'user-cust-2', '+233 209 987 654', 1, '2026-04-20', '2026-08-25');
 
--- Product images (gallery)
-INSERT INTO product_images (product_id, url, alt, sort_order) VALUES
-  (1, 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?auto=format&fit=crop&w=900&q=85', 'The Column Dress front', 1),
-  (1, 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=900&q=85', 'The Column Dress back', 2),
-  (2, 'https://images.unsplash.com/photo-1506629905607-d9dbe6b3d8b6?auto=format&fit=crop&w=900&q=85', 'Form Trouser', 1),
-  (3, 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=900&q=85', 'The Essential Shirt', 1),
-  (4, 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=900&q=85', 'Soft Structure Blazer', 1),
-  (5, 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=900&q=85', 'The Longline Skirt', 1);
+INSERT OR IGNORE INTO sizes (id, label, sort_order)
+VALUES
+  ('size-xs', 'XS', 0), ('size-s', 'S', 1), ('size-m', 'M', 2), ('size-l', 'L', 3), ('size-xl', 'XL', 4), ('size-xxl', 'XXL', 5);
 
--- Pivot: product -> categories
-INSERT INTO product_categories (product_id, category_id) VALUES
-  (1, 1), (2, 2), (3, 3), (4, 3), (5, 2), (6, 3), (7, 3), (8, 1);
+INSERT OR IGNORE INTO colors (id, name, swatch)
+VALUES
+  ('color-clay', 'Clay', '#b8532c'), ('color-cocoa', 'Cocoa', '#5c3a2e'), ('color-sage', 'Sage', '#a9bfae'), ('color-cream', 'Cream', '#efe6d6'), ('color-black', 'Black', '#161616');
 
--- Pivot: product -> collections
-INSERT INTO product_collections (product_id, collection_id) VALUES
-  (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1),
-  (1, 2), (3, 2), (5, 2), (7, 2);
+INSERT OR IGNORE INTO delivery_zones (id, name, regions, rate_cents, free_shipping_threshold_cents, estimated_days_min, estimated_days_max, is_active, sort_order, created_at, updated_at)
+VALUES
+  ('zone-001', 'Greater Accra', 'Greater Accra', 2500, 50000, 1, 2, 1, 0, '2026-01-01', '2026-08-20'),
+  ('zone-002', 'Ashanti & Environs', 'Ashanti', 4000, 80000, 2, 4, 1, 1, '2026-01-01', '2026-08-20'),
+  ('zone-003', 'Other Regions', 'Western,Eastern,Northern', 5500, 100000, 3, 7, 1, 2, '2026-01-01', '2026-08-20');
 
--- Discount codes
-INSERT INTO discounts (code, type, value, minimum_amount, usage_limit, used_count, per_customer_limit, expires_at, status) VALUES
-  ('WELCOME10', 'percentage', 10, 0, NULL, 0, 1, '2026-12-31 23:59:59', 'Active'),
-  ('FREESHIP', 'fixed', 150, 1000, 50, 0, 1, '2026-08-15 23:59:59', 'Active'),
-  ('SS26LOVE', 'fixed', 200, 500, 100, 0, 1, '2026-09-30 23:59:59', 'Active');
+INSERT OR IGNORE INTO delivery_methods (id, name, description, zone_id, rate_cents, free_shipping_threshold_cents, estimated_days_min, estimated_days_max, carrier_key, requires_pickup_point, is_active, sort_order, created_at, updated_at)
+VALUES
+  ('dm-001', 'Ghana Post', 'Nationwide postal delivery.', 'zone-001', 2500, 50000, 1, 2, 'ghana-post', 0, 1, 0, '2026-01-01', '2026-08-20'),
+  ('dm-002', 'DHL Express', 'Express courier service.', 'zone-001', 4500, NULL, 1, 1, 'dhl', 0, 1, 1, '2026-01-01', '2026-08-20'),
+  ('dm-003', 'Pickup Point', 'Collect from nearest pickup point.', 'zone-002', 2000, 80000, 2, 3, NULL, 1, 1, 2, '2026-01-01', '2026-08-20');
 
--- Sample reviews
-INSERT INTO reviews (product_id, customer_name, rating, comment, status) VALUES
-  (3, 'Ama Mensah', 5, 'Perfect fit and beautiful fabric.', 'Approved'),
-  (1, 'Kofi Asante', 5, 'The best dress I have ever owned.', 'Approved'),
-  (2, 'Adwoa Mensah', 4, 'Great length and comfortable.', 'Pending');
-
--- Sample message
-INSERT INTO messages (name, email, subject, body, status) VALUES
-  ('Adwoa Mensah', 'adwoa@noirform.co', 'Question about sizing', 'Does the Column Dress run true to size?', 'Unread');
+INSERT OR IGNORE INTO discounts (id, code, name, description, type, value_cents, applies_to, min_subtotal_cents, first_order_only, usage_limit, usage_limit_per_customer, usage_count, is_active, starts_at, ends_at, combinable, priority, created_at, updated_at)
+VALUES
+  ('disc-001', 'SUMMER20', 'Summer Sale', '20% off summer collection.', 'percentage', 2000, 'categories', 10000, 0, 500, 1, 342, 1, '2026-06-01T00:00:00Z', '2026-09-30T23:59:59Z', 0, 1, '2026-05-20', '2026-08-20'),
+  ('disc-002', 'WELCOME10', 'Welcome Discount', '10% off first order.', 'percentage', 1000, 'all', NULL, 1, 1000, 1, 856, 1, '2026-01-01T00:00:00Z', NULL, 0, 2, '2026-01-01', '2026-08-20'),
+  ('disc-003', 'FREESHIP', 'Free Shipping', 'Free shipping on orders over GH₵500.', 'free_shipping', 0, 'all', 50000, 0, 2000, 2, 1234, 1, '2026-01-01T00:00:00Z', NULL, 1, 3, '2026-01-01', '2026-08-20');
