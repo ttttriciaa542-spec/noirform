@@ -20,6 +20,7 @@ const defaultAppearance = {
   headingFont: "Bodoni Moda",
   bodyFont: "Jost",
   borderRadius: "md",
+  homepageBannerUrl: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1600&q=80",
 };
 
 type AppearanceKey = keyof typeof defaultAppearance;
@@ -148,6 +149,28 @@ function AdminAppearance() {
               </div>
             </div>
             <Button onClick={handleSave}>Save Colors</Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="text-lg">Homepage hero</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm">Hero image URL</Label>
+              <Input
+                value={settings.homepageBannerUrl}
+                onChange={(event) => updateSetting("homepageBannerUrl", event.target.value)}
+                placeholder="https://example.com/dress.jpg"
+              />
+            </div>
+            <div className="rounded-md border border-dashed p-3">
+              <img
+                src={settings.homepageBannerUrl || "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1600&q=80"}
+                alt="Homepage hero preview"
+                className="h-40 w-full rounded-md object-cover"
+              />
+            </div>
+            <Button onClick={handleSave}>Save hero image</Button>
           </CardContent>
         </Card>
 

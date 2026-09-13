@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import heroDesktop from "@/assets/hero-desktop.jpg";
-import heroMobile from "@/assets/hero-mobile.jpg";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAdminAppearanceSettings } from "@/lib/admin-store";
+
+const fallbackHeroImage = "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1600&q=80";
 
 export function Hero() {
   const [offset, setOffset] = useState(0);
+  const { data: appearance } = useQuery({
+    queryKey: ["/admin/appearance"],
+    queryFn: fetchAdminAppearanceSettings,
+  });
+
+  const heroImage = appearance?.homepageBannerUrl || fallbackHeroImage;
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -24,10 +32,10 @@ export function Hero() {
   return (
     <section className="relative h-[92svh] min-h-[560px] w-full overflow-hidden bg-ink">
       <picture>
-        <source media="(min-width: 768px)" srcSet={heroDesktop} />
+        <source media="(min-width: 768px)" srcSet={heroImage} />
         <img
-          src={heroMobile}
-          alt="BigDotCollections summer campaign"
+          src={heroImage}
+          alt="BigDotCollections home hero"
           width={1920}
           height={1088}
           fetchPriority="high"

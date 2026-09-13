@@ -133,7 +133,7 @@ const defaultAppearanceSettings = (): AppearanceSettings => ({
   description: "Beachwear and elevated resort pieces made for daily life",
   logoUrl: "",
   faviconUrl: "",
-  homepageBannerUrl: "",
+  homepageBannerUrl: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1600&q=80",
   promotionalBanners: [],
   featuredProductIds: [],
   featuredCategoryIds: [],
