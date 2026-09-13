@@ -82,16 +82,17 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
         ) : null}
 
         {images.length > 1 ? (
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          <div className="mt-3 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {images.map((image, index) => (
               <button
                 key={image.id}
                 type="button"
                 onClick={() => goToImage(index)}
                 aria-label={`Show image ${index + 1}`}
+                aria-current={index === active}
                 className={cn(
-                  "h-16 w-16 shrink-0 overflow-hidden border bg-secondary",
-                  index === active ? "border-foreground" : "border-transparent opacity-70",
+                  "h-16 w-16 shrink-0 snap-start overflow-hidden border bg-secondary transition-all",
+                  index === active ? "border-foreground ring-1 ring-foreground" : "border-transparent opacity-70",
                 )}
               >
                 <img
