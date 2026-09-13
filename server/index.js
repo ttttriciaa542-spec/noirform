@@ -12,16 +12,36 @@ const rootDir = path.resolve(__dirname, '..');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const dbConfig = {
-  host: process.env.DB_HOST || '127.0.0.1',
-  port: Number(process.env.DB_PORT || 3306),
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'bigdotcollections',
-  waitForConnections: true,
-  connectionLimit: 10,
-  multipleStatements: true,
+const resolveDbConfig = () => {
+  const mysqlUrl = process.env.MYSQL_URL || process.env.DATABASE_URL;
+
+  if (mysqlUrl && mysqlUrl.startsWith('mysql://')) {
+    const parsed = new URL(mysqlUrl);
+    return {
+      host: parsed.hostname || process.env.MYSQLHOST || '127.0.0.1',
+      port: Number(parsed.port || process.env.MYSQLPORT || 3306),
+      user: decodeURIComponent(parsed.username || process.env.MYSQLUSER || 'root'),
+      password: decodeURIComponent(parsed.password || process.env.MYSQLPASSWORD || ''),
+      database: decodeURIComponent(parsed.pathname.replace(/^\//, '') || process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'bigdotcollections'),
+      waitForConnections: true,
+      connectionLimit: 10,
+      multipleStatements: true,
+    };
+  }
+
+  return {
+    host: process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
+    port: Number(process.env.MYSQLPORT || process.env.DB_PORT || 3306),
+    user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+    password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
+    database: process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || process.env.DB_NAME || 'bigdotcollections',
+    waitForConnections: true,
+    connectionLimit: 10,
+    multipleStatements: true,
+  };
 };
+
+const dbConfig = resolveDbConfig();
 
 let pool;
 
@@ -196,6 +216,11 @@ async function ensureDatabase() {
 
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+const distDir = path.join(rootDir, 'dist');
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir));
+}
 
 app.get('/api/health', async (_req, res) => {
   try {
@@ -700,8 +725,22 @@ app.patch('/api/admin/orders/:id/status', async (req, res) => {
   }
 });
 
+if (fs.existsSync(distDir)) {
+  app.get(/^(?!\/api).*/, (_req, res) => {
+    res.sendFile(path.join(distDir, 'index.html'));
+  });
+}
+
 app.use((req, res) => {
-  res.status(404).json({ message: `Route not found: ${req.originalUrl}` });
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ message: `Route not found: ${req.originalUrl}` });
+  }
+
+  if (fs.existsSync(distDir)) {
+    return res.sendFile(path.join(distDir, 'index.html'));
+  }
+
+  return res.status(404).json({ message: `Route not found: ${req.originalUrl}` });
 });
 
 async function startServer() {

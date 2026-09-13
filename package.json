@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node server/index.js & node ./node_modules/vite/bin/vite.js --host 0.0.0.0 --port 5173",
     "build": "node ./node_modules/vite/bin/vite.js build",
-    "start": "node server/index.js & node ./node_modules/vite/bin/vite.js --host 0.0.0.0 --port 5173",
+    "start": "node server/index.js",
     "server": "node server/index.js",
     "postinstall": "node -e \"const fs=require('fs'); const path=require('path'); const names=['vite','esbuild','tailwindcss']; for (const name of names) { const file=path.join(process.cwd(),'node_modules','.bin',process.platform==='win32'?name+'.cmd':name); try { if (fs.existsSync(file)) fs.chmodSync(file, 0o755); } catch (error) {} }\""
   },
