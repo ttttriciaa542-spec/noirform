@@ -174,7 +174,16 @@ function ProductPage() {
 
           <div className="mt-8 flex items-center gap-3">
             <QuantitySelector value={quantity} onChange={setQuantity} max={Math.max(1, product.stock)} />
-            <span className="text-xs text-muted-foreground">
+            <span
+              className={cn(
+                "text-xs font-medium",
+                soldOut
+                  ? "text-red-600"
+                  : product.stock <= 5
+                    ? "text-amber-600"
+                    : "text-green-600",
+              )}
+            >
               {soldOut
                 ? "Out of stock"
                 : product.stock <= 5
