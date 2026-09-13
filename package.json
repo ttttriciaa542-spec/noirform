@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "concurrently -k \"node server/index.js\" \"vite --host 0.0.0.0 --port 5173\"",
-    "build": "vite build",
-    "start": "concurrently -k \"node server/index.js\" \"vite --host 0.0.0.0 --port 5173\"",
-    "server": "node server/index.js"
+    "dev": "concurrently -k \"node server/index.js\" \"node ./node_modules/vite/bin/vite.js --host 0.0.0.0 --port 5173\"",
+    "build": "node ./node_modules/vite/bin/vite.js build",
+    "start": "concurrently -k \"node server/index.js\" \"node ./node_modules/vite/bin/vite.js --host 0.0.0.0 --port 5173\"",
+    "server": "node server/index.js",
+    "postinstall": "node -e \"const fs=require('fs'); const path=require('path'); const names=['vite','concurrently','esbuild','tailwindcss']; for (const name of names) { const file=path.join(process.cwd(),'node_modules','.bin',process.platform==='win32'?name+'.cmd':name); try { if (fs.existsSync(file)) fs.chmodSync(file, 0o755); } catch (error) {} }\""
   },
   "dependencies": {
     "@radix-ui/react-accordion": "latest",
