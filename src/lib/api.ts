@@ -19,18 +19,14 @@ export const API_BASE_URL: string | undefined = getRuntimeEnv().VITE_API_URL ?? 
 const USE_MOCK_DATA = getRuntimeEnv().VITE_USE_MOCK_DATA === "true";
 
 function withProductImageFallback(product: Product): Product {
-  const images = product.images?.length
-    ? product.images.map((image, index) => ({
-        ...image,
-        url: image.url || getProductFallbackImage(product.id, index),
-      }))
-    : [0, 1].map((index) => ({
-        id: `${product.id}-fallback-${index}`,
-        url: getProductFallbackImage(product.id, index),
-        alt: `${product.name} — view ${index + 1}`,
-        width: 1024,
-        height: 1280,
-      }));
+  const images = [0, 1].map((index) => ({
+    ...(product.images?.[index] ?? {}),
+    id: product.images?.[index]?.id ?? `${product.id}-local-${index}`,
+    url: getProductFallbackImage(product.slug || product.id, index),
+    alt: product.images?.[index]?.alt ?? `${product.name} — view ${index + 1}`,
+    width: product.images?.[index]?.width ?? 1024,
+    height: product.images?.[index]?.height ?? 1280,
+  }));
 
   return { ...product, images };
 }

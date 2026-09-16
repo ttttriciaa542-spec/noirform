@@ -15,10 +15,44 @@ import p6 from "@/assets/p6.jpg";
 import p7 from "@/assets/p7.jpg";
 import p8 from "@/assets/p8.jpg";
 import editorial from "@/assets/editorial.jpg";
-import campaign from "@/assets/campaign.jpg";
 import heroMobile from "@/assets/hero-mobile.jpg";
+import product01 from "@/assets/product-01.jpg";
+import product02 from "@/assets/product-02.jpg";
+import product03 from "@/assets/product-03.jpg";
+import product04 from "@/assets/product-04.jpg";
+import product05 from "@/assets/product-05.jpg";
+import product06 from "@/assets/product-06.jpg";
+import product07 from "@/assets/product-07.jpg";
+import product08 from "@/assets/product-08.jpg";
+import product09 from "@/assets/product-09.jpg";
+import product10 from "@/assets/product-10.jpg";
+import product11 from "@/assets/product-11.jpg";
+import product12 from "@/assets/product-12.jpg";
+import product13 from "@/assets/product-13.jpg";
+import product14 from "@/assets/product-14.jpg";
+import product15 from "@/assets/product-15.jpg";
+import product16 from "@/assets/product-16.jpg";
+import product17 from "@/assets/product-17.jpg";
+import product18 from "@/assets/product-18.jpg";
+import product19 from "@/assets/product-19.jpg";
+import product20 from "@/assets/product-20.jpg";
+import product21 from "@/assets/product-21.jpg";
+import product22 from "@/assets/product-22.jpg";
+import product23 from "@/assets/product-23.jpg";
+import product24 from "@/assets/product-24.jpg";
+import product25 from "@/assets/product-25.jpg";
+import product26 from "@/assets/product-26.jpg";
+import product27 from "@/assets/product-27.jpg";
+import product28 from "@/assets/product-28.jpg";
+import product29 from "@/assets/product-29.jpg";
 
-const shots = { p1, p2, p3, p4, p5, p6, p7, p8, editorial, campaign, heroMobile };
+const shots = { p1, p2, p3, p4, p5, p6, p7, p8, editorial, heroMobile };
+const uniqueProductPhotos = [
+  product01, product02, product03, product04, product05, product06, product07, product08,
+  product09, product10, product11, product12, product13, product14, product15, product16,
+  product17, product18, product19, product20, product21, product22, product23, product24,
+  product25, product26, product27, product28, product29, p1, p2, p3,
+];
 
 export const mockCategories: Category[] = [
   {
@@ -511,13 +545,16 @@ const seeds: Seed[] = [
   },
 ];
 
-export const mockProducts: Product[] = seeds.map(({ shots: keys, ...rest }) => ({
+export const mockProducts: Product[] = seeds.map(({ shots: _keys, ...rest }) => ({
   ...rest,
-  images: keys.map((key, index) => ({
-    id: `${rest.id}-${index}`,
-    url: shots[key],
-    alt: `${rest.name} — view ${index + 1}`,
-    width: 1024,
-    height: 1280,
-  })),
+  images: [0, 1].map((index) => {
+    const photo = uniqueProductPhotos[(Number(rest.id) - 1) * 2 + index];
+    return {
+      id: `${rest.id}-${index}`,
+      url: photo,
+      alt: `${rest.name} — view ${index + 1}`,
+      width: 1024,
+      height: 1280,
+    };
+  }),
 }));

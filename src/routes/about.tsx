@@ -2,7 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Reveal } from "@/components/common/Reveal";
 import editorial from "@/assets/editorial.jpg";
-import campaign from "@/assets/campaign.jpg";
+import aboutStory from "@/assets/about-story.jpg";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -33,7 +33,7 @@ function AboutPage() {
         eyebrow="Our story"
         title="Made in Ghana, worn everywhere"
         description="BigDotCollections started with a simple idea: pieces that make you feel like yourself, only louder."
-        image={campaign}
+        image={aboutStory}
       />
 
       <div className="edge grid gap-10 pb-16 md:grid-cols-2 md:gap-16">
