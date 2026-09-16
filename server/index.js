@@ -13,6 +13,25 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 const resolveDbConfig = () => {
+  const explicitHost = process.env.MYSQLHOST || process.env.DB_HOST;
+  const explicitDatabase = process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || process.env.DB_NAME;
+  const explicitUser = process.env.MYSQLUSER || process.env.DB_USER;
+  const explicitPassword = process.env.MYSQLPASSWORD || process.env.MYSQL_ROOT_PASSWORD || process.env.DB_PASSWORD;
+  const explicitPort = process.env.MYSQLPORT || process.env.DB_PORT;
+
+  if (explicitHost) {
+    return {
+      host: explicitHost,
+      port: Number(explicitPort || 3306),
+      user: explicitUser || 'root',
+      password: explicitPassword || '',
+      database: explicitDatabase || 'bigdotcollections',
+      waitForConnections: true,
+      connectionLimit: 10,
+      multipleStatements: true,
+    };
+  }
+
   const mysqlUrl = process.env.MYSQL_URL || process.env.DATABASE_URL;
 
   if (mysqlUrl && mysqlUrl.startsWith('mysql://')) {
