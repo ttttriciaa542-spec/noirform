@@ -2,6 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Reveal } from "@/components/common/Reveal";
 import { fetchCollections } from "@/lib/api";
+import { getCollectionFallbackImage, replaceBrokenImage } from "@/lib/catalog-images";
 
 export const Route = createFileRoute("/collections/")({
   loader: () => fetchCollections(),
@@ -43,6 +44,7 @@ function CollectionsPage() {
               <div className="relative aspect-[4/5] overflow-hidden bg-secondary md:aspect-[3/2]">
                 <img
                   src={collection.image}
+                  onError={(event) => replaceBrokenImage(event, getCollectionFallbackImage(collection.slug))}
                   alt=""
                   aria-hidden="true"
                   loading="lazy"

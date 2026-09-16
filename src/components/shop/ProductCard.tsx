@@ -14,6 +14,7 @@ import { WishlistButton } from "./WishlistButton";
 import { getDiscountPercentage } from "@/lib/pricing";
 import { useShop } from "@/store/shop";
 import { cn } from "@/lib/utils";
+import { getProductFallbackImage, replaceBrokenImage } from "@/lib/catalog-images";
 import type { Product } from "@/lib/types";
 
 interface ProductCardProps {
@@ -40,6 +41,7 @@ export function ProductCard({ product, priority = false, className }: ProductCar
           {primary ? (
             <img
               src={primary.url}
+              onError={(event) => replaceBrokenImage(event, getProductFallbackImage(product.id))}
               alt={primary.alt}
               width={primary.width ?? 1024}
               height={primary.height ?? 1280}
@@ -54,6 +56,7 @@ export function ProductCard({ product, priority = false, className }: ProductCar
           {secondary ? (
             <img
               src={secondary.url}
+              onError={(event) => replaceBrokenImage(event, getProductFallbackImage(product.id, 1))}
               alt=""
               aria-hidden="true"
               width={secondary.width ?? 1024}
@@ -134,6 +137,7 @@ function QuickView({ product }: { product: Product }) {
         <div className="grid sm:grid-cols-2">
           <img
             src={product.images[0]?.url}
+            onError={(event) => replaceBrokenImage(event, getProductFallbackImage(product.id))}
             alt={product.images[0]?.alt ?? product.name}
             width={1024}
             height={1280}

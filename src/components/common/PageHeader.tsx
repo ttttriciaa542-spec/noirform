@@ -1,5 +1,6 @@
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";
+import { getCategoryFallbackImage, replaceBrokenImage } from "@/lib/catalog-images";
 
 interface PageHeaderProps {
   eyebrow?: string;
@@ -16,6 +17,7 @@ export function PageHeader({ eyebrow, title, description, image, className }: Pa
         <div className="relative h-[46vh] min-h-[280px] w-full overflow-hidden bg-secondary md:h-[52vh]">
           <img
             src={image}
+            onError={(event) => replaceBrokenImage(event, getCategoryFallbackImage(title))}
             alt=""
             aria-hidden="true"
             className="reveal-in-image size-full object-cover"

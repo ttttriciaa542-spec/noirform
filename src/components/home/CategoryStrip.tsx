@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/common/Reveal";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import type { Category } from "@/lib/types";
+import { getCategoryFallbackImage, replaceBrokenImage } from "@/lib/catalog-images";
 
 export function CategoryStrip({ categories }: { categories: Category[] }) {
   return (
@@ -29,6 +30,7 @@ export function CategoryStrip({ categories }: { categories: Category[] }) {
               <div className="relative aspect-[3/4] overflow-hidden bg-secondary">
                 <img
                   src={category.image}
+                  onError={(event) => replaceBrokenImage(event, getCategoryFallbackImage(category.slug))}
                   alt=""
                   aria-hidden="true"
                   loading="lazy"

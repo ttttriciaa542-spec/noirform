@@ -10,6 +10,7 @@ import type {
 import { requestJson, requestJsonOrThrow } from "@/lib/http-client";
 import type { Product } from "@/lib/types";
 import { mockProducts } from "@/data/mock-catalog";
+import heroDesktop from "@/assets/hero-desktop.jpg";
 
 const ADMIN_PRODUCTS_KEY = "bdc.admin.products.v1";
 const ADMIN_ORDERS_KEY = "bdc.admin.orders.v1";
@@ -133,7 +134,7 @@ const defaultAppearanceSettings = (): AppearanceSettings => ({
   description: "Beachwear and elevated resort pieces made for daily life",
   logoUrl: "",
   faviconUrl: "",
-  homepageBannerUrl: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1600&q=80",
+  homepageBannerUrl: heroDesktop,
   promotionalBanners: [],
   featuredProductIds: [],
   featuredCategoryIds: [],

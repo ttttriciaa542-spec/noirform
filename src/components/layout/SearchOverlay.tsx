@@ -5,6 +5,7 @@ import { fetchProducts, suggestedSearches } from "@/lib/api";
 import { formatPrice } from "@/lib/pricing";
 import type { Product } from "@/lib/types";
 import { useShop } from "@/store/shop";
+import { getProductFallbackImage, replaceBrokenImage } from "@/lib/catalog-images";
 
 export function SearchOverlay() {
   const { searchOpen, setSearchOpen } = useShop();
@@ -123,6 +124,7 @@ export function SearchOverlay() {
                 >
                   <img
                     src={product.images[0]?.url}
+                    onError={(event) => replaceBrokenImage(event, getProductFallbackImage(product.id))}
                     alt=""
                     aria-hidden="true"
                     loading="lazy"

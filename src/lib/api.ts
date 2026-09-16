@@ -5,6 +5,7 @@
  * supports a real server endpoint while keeping the frontend design unchanged.
  */
 import { mockCategories, mockCollections, mockProducts } from "@/data/mock-catalog";
+import { getCategoryFallbackImage, getProductFallbackImage } from "@/lib/catalog-images";
 import { isOnSale } from "@/lib/pricing";
 import type { Category, Collection, Product, ProductQuery, TrackOrderDetails } from "@/lib/types";
 
@@ -16,6 +17,27 @@ const getRuntimeEnv = (): Record<string, string | undefined> => {
 
 export const API_BASE_URL: string | undefined = getRuntimeEnv().VITE_API_URL ?? "/api";
 const USE_MOCK_DATA = getRuntimeEnv().VITE_USE_MOCK_DATA === "true";
+
+function withProductImageFallback(product: Product): Product {
+  const images = product.images?.length
+    ? product.images.map((image, index) => ({
+        ...image,
+        url: image.url || getProductFallbackImage(product.id, index),
+      }))
+    : [0, 1].map((index) => ({
+        id: `${product.id}-fallback-${index}`,
+        url: getProductFallbackImage(product.id, index),
+        alt: `${product.name} — view ${index + 1}`,
+        width: 1024,
+        height: 1280,
+      }));
+
+  return { ...product, images };
+}
+
+function withCategoryImageFallback(category: Category): Category {
+  return { ...category, image: category.image || getCategoryFallbackImage(category.slug) };
+}
 
 async function requestJson<T>(path: string): Promise<T | null> {
   try {
@@ -80,7 +102,7 @@ export async function fetchProducts(query: ProductQuery = {}): Promise<Product[]
   if (query.isBestSeller) params.set("isBestSeller", "true");
 
   const data = await requestJson<Product[]>(`/products?${params.toString()}`);
-  if (data && data.length) return data;
+  if (data && data.length) return data.map(withProductImageFallback);
   if (USE_MOCK_DATA) {
     const filtered = mockProducts.filter((product) => matches(product, query));
     const sorted = sortProducts(filtered, query.sort);
@@ -91,14 +113,14 @@ export async function fetchProducts(query: ProductQuery = {}): Promise<Product[]
 
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   const data = await requestJson<Product>(`/products/${encodeURIComponent(slug)}`);
-  if (data) return data;
+  if (data) return withProductImageFallback(data);
   if (USE_MOCK_DATA) return mockProducts.find((product) => product.slug === slug) ?? null;
   return null;
 }
 
 export async function fetchRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
   const data = await requestJson<Product[]>(`/products/${encodeURIComponent(product.slug)}/related?limit=${limit}`);
-  if (data && data.length) return data;
+  if (data && data.length) return data.map(withProductImageFallback);
   if (!USE_MOCK_DATA) return [];
 
   return mockProducts
@@ -109,12 +131,12 @@ export async function fetchRelatedProducts(product: Product, limit = 4): Promise
 
 export async function fetchCategories(): Promise<Category[]> {
   const data = await requestJson<Category[]>(`/categories`);
-  return data ?? (USE_MOCK_DATA ? mockCategories : []);
+  return data?.map(withCategoryImageFallback) ?? (USE_MOCK_DATA ? mockCategories : []);
 }
 
 export async function fetchCategoryBySlug(slug: string): Promise<Category | null> {
   const data = await requestJson<Category>(`/categories/${encodeURIComponent(slug)}`);
-  if (data) return data;
+  if (data) return withCategoryImageFallback(data);
   if (USE_MOCK_DATA) return mockCategories.find((category) => category.slug === slug) ?? null;
   return null;
 }

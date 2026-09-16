@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAdminAppearanceSettings } from "@/lib/admin-store";
+import heroDesktop from "@/assets/hero-desktop.jpg";
+import heroMobile from "@/assets/hero-mobile.jpg";
+import { replaceBrokenImage } from "@/lib/catalog-images";
 
-const fallbackHeroImage = "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1600&q=80";
+const fallbackHeroImage = heroDesktop;
 
 export function Hero() {
   const [offset, setOffset] = useState(0);
@@ -35,6 +38,7 @@ export function Hero() {
         <source media="(min-width: 768px)" srcSet={heroImage} />
         <img
           src={heroImage}
+          onError={(event) => replaceBrokenImage(event, heroMobile)}
           alt="BigDotCollections home hero"
           width={1920}
           height={1088}

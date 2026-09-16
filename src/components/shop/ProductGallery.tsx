@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Expand } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { ProductImage } from "@/lib/types";
+import { getProductFallbackImage, replaceBrokenImage } from "@/lib/catalog-images";
 
 interface ProductGalleryProps {
   images: ProductImage[];
@@ -49,6 +50,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               <img
                 key={current.id}
                 src={current.url}
+                onError={(event) => replaceBrokenImage(event, getProductFallbackImage(current.id))}
                 alt={current.alt}
                 width={current.width ?? 1024}
                 height={current.height ?? 1280}
@@ -114,6 +116,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                 >
                   <img
                     src={image.url}
+                    onError={(event) => replaceBrokenImage(event, getProductFallbackImage(image.id))}
                     alt=""
                     width={image.width ?? 1024}
                     height={image.height ?? 1280}
@@ -144,6 +147,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               >
                 <img
                   src={image.url}
+                  onError={(event) => replaceBrokenImage(event, getProductFallbackImage(image.id))}
                   alt=""
                   width={image.width ?? 1024}
                   height={image.height ?? 1280}

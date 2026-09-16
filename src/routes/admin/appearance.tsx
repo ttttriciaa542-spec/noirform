@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { fetchAdminAppearanceSettings, saveAdminAppearanceSettings } from "@/lib/admin-store";
 import { Palette, Loader2 } from "lucide-react";
+import heroDesktop from "@/assets/hero-desktop.jpg";
 
 const defaultAppearance = {
   primaryColor: "#3a3a38",
@@ -20,7 +21,7 @@ const defaultAppearance = {
   headingFont: "Bodoni Moda",
   bodyFont: "Jost",
   borderRadius: "md",
-  homepageBannerUrl: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1600&q=80",
+  homepageBannerUrl: heroDesktop,
 };
 
 type AppearanceKey = keyof typeof defaultAppearance;
@@ -165,7 +166,7 @@ function AdminAppearance() {
             </div>
             <div className="rounded-md border border-dashed p-3">
               <img
-                src={settings.homepageBannerUrl || "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1600&q=80"}
+                src={settings.homepageBannerUrl || heroDesktop}
                 alt="Homepage hero preview"
                 className="h-40 w-full rounded-md object-cover"
               />
