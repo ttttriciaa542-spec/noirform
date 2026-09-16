@@ -89,6 +89,12 @@ function sortProducts(products: Product[], sort?: ProductQuery["sort"]): Product
   }
 }
 
+function fallbackProducts(query: ProductQuery): Product[] {
+  const filtered = mockProducts.filter((product) => matches(product, query));
+  const sorted = sortProducts(filtered, query.sort);
+  return query.limit ? sorted.slice(0, query.limit) : sorted;
+}
+
 export async function fetchProducts(query: ProductQuery = {}): Promise<Product[]> {
   const params = new URLSearchParams();
   if (query.category) params.set("category", query.category);
@@ -103,25 +109,21 @@ export async function fetchProducts(query: ProductQuery = {}): Promise<Product[]
 
   const data = await requestJson<Product[]>(`/products?${params.toString()}`);
   if (data && data.length) return data.map(withProductImageFallback);
-  if (USE_MOCK_DATA) {
-    const filtered = mockProducts.filter((product) => matches(product, query));
-    const sorted = sortProducts(filtered, query.sort);
-    return query.limit ? sorted.slice(0, query.limit) : sorted;
-  }
-  return [];
+  if (data === null) return fallbackProducts(query);
+  return data.map(withProductImageFallback);
 }
 
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   const data = await requestJson<Product>(`/products/${encodeURIComponent(slug)}`);
   if (data) return withProductImageFallback(data);
-  if (USE_MOCK_DATA) return mockProducts.find((product) => product.slug === slug) ?? null;
+  if (data === null) return mockProducts.find((product) => product.slug === slug) ?? null;
   return null;
 }
 
 export async function fetchRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
   const data = await requestJson<Product[]>(`/products/${encodeURIComponent(product.slug)}/related?limit=${limit}`);
   if (data && data.length) return data.map(withProductImageFallback);
-  if (!USE_MOCK_DATA) return [];
+  if (data) return [];
 
   return mockProducts
     .filter((candidate) => candidate.id !== product.id && candidate.category === product.category)
@@ -131,25 +133,25 @@ export async function fetchRelatedProducts(product: Product, limit = 4): Promise
 
 export async function fetchCategories(): Promise<Category[]> {
   const data = await requestJson<Category[]>(`/categories`);
-  return data?.map(withCategoryImageFallback) ?? (USE_MOCK_DATA ? mockCategories : []);
+  return data?.map(withCategoryImageFallback) ?? mockCategories;
 }
 
 export async function fetchCategoryBySlug(slug: string): Promise<Category | null> {
   const data = await requestJson<Category>(`/categories/${encodeURIComponent(slug)}`);
   if (data) return withCategoryImageFallback(data);
-  if (USE_MOCK_DATA) return mockCategories.find((category) => category.slug === slug) ?? null;
+  if (data === null) return mockCategories.find((category) => category.slug === slug) ?? null;
   return null;
 }
 
 export async function fetchCollections(): Promise<Collection[]> {
   const data = await requestJson<Collection[]>(`/collections`);
-  return data ?? (USE_MOCK_DATA ? mockCollections : []);
+  return data ?? mockCollections;
 }
 
 export async function fetchCollectionBySlug(slug: string): Promise<Collection | null> {
   const data = await requestJson<Collection>(`/collections/${encodeURIComponent(slug)}`);
   if (data) return data;
-  if (USE_MOCK_DATA) return mockCollections.find((collection) => collection.slug === slug) ?? null;
+  if (data === null) return mockCollections.find((collection) => collection.slug === slug) ?? null;
   return null;
 }
 
